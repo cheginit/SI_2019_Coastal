@@ -1,7 +1,11 @@
 # Coastal Group
 
 ## Group 1
-### Objectives:
+### Objectives
+
+### Deliverables
 
 ## Group 2
-### Objectives:
+### Objectives
+
+### Deliverables
