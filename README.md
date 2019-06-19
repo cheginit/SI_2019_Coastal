@@ -1,11 +1,3 @@
 # Coastal Group
 
-## Group 1
-### Objectives
-
-### Deliverables
-
-## Group 2
-### Objectives
-
-### Deliverables
+As part of summer institute 2019 held in National Water Center, Coastal Group works towards systematic analysis of large-scale modeling of coastal areas.

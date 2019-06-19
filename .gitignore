@@ -188,4 +188,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# End of https://www.gitignore.io/api/cmake,python,fortran,premake-gmake,jupyternotebook
