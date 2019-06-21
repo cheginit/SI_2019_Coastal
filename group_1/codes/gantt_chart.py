@@ -21,5 +21,5 @@ fig = ff.create_gantt(df,colors='RdBu', index_col='Complete',show_colorbar=True)
 fig['layout']['xaxis']['rangeselector']['visible'] = False
 fig['layout']['xaxis']['rangeslider'] = dict(bgcolor='#E2E2E2')
 fig['layout']['xaxis']['type'] = 'date'
-fig['layout'].update(autosize=False, width=800, height=500, margin=dict(l=110))
-pio.write_image(fig, 'Gantt.png', width=1200, height=700)
+fig['layout'].update(autosize=False, width=1200, height=700, margin=dict(l=200))
+pio.write_image(fig, 'Gantt.png')
