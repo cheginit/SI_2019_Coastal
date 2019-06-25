@@ -34,7 +34,6 @@ def get_stations_info(stations_id):
 
 
     established, lats, lons = [], [], []
-    if isinstance()
     for st in stations_id:
         tags = parse('https://tidesandcurrents.noaa.gov/stationhome.html?id=' + st, 'td')
         for i in range(len(tags)-1):
