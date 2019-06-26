@@ -7,4 +7,25 @@ As part of summer institute 2019 held in National Water Center, Coastal Group wo
 
 ## Objectives
 
-## Deliverables
+## Deliverable
+
+## Instructions
+The following steps should be taken for using `tide_constituents.py`:
+1. Install Anaconda and load it in a command line.
+2. Run the following command to create a new environment called `tides`:
+```bash
+conda create -n tides pip requests shapely beautifulsoup4 pandas scipy
+```
+then activate the environment ```conda activate tides```.
+3. Install some extra packages with `pip`:
+```bash
+pip install py_noaa baker astronomia filelike pyparsing
+```
+4. Clone the tappy repository to a location and install it:
+```bash
+git clone -b py3 https://github.com/taataam/tappy.git
+cd tappy
+python setup.py install
+```
+
+An example showing how to use the code is provided in `src/tide_constituents/mobile_bay.py` 

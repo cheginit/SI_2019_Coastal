@@ -1,6 +1,8 @@
 requests>=2.22.0
 pandas>=0.24.2
 py_noaa>=1.0
-Shapely>=1.6.4.post1
+Shapely>=1.6.4
 beautifulsoup4>=4.7.1
 tappy>=0.10.2
+baker
+scipy
