@@ -31,8 +31,8 @@ def get_tides(start, end, lon, lat):
     # tappy.py in the baker function "analysis" (around line 1721).
     quiet = True
     debug = False
-    outputts = False
-    outputxml = False
+    outputts = True
+    outputxml = 'mobile.xml'
     ephemeris = False
     rayleigh = 1.0
     print_vau_table = False
@@ -74,4 +74,4 @@ def get_tides(start, end, lon, lat):
     # the analysis
     x.constituents()
     
-    return df_water_levels, x.phase, x.r
+    return df_water_levels, x
