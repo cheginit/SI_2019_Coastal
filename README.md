@@ -17,6 +17,7 @@ The following steps should be taken for using `tide_constituents.py`:
 conda create -n tides pip requests shapely beautifulsoup4 pandas scipy
 ```
 then activate the environment ```conda activate tides```.
+
 3. Install some extra packages with `pip`:
 ```bash
 pip install py_noaa baker astronomia filelike pyparsing
