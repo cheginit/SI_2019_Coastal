@@ -9,17 +9,13 @@ As part of summer institute 2019 held in National Water Center, Coastal Group wo
 Metrics:
 - **R**oughness Manning's (-)
 - **D**ischarge (cms)
-- **S**inuosity: Curvilinear Length/Straight Line Length)
+- **S**inuosity: Curvilinear Length/Straight Line Length
 - **T**ides: Low Range, High Range, w/Surge
 
-Default Values:
-- R = 0.025
-- D = 300 cms
-- S = 1
-- T = Low range
 
 | Simulation Name |   R   |   D  |  S  |    T    |            status            |
 |:---------------:|:-----:|:----:|:---:|:-------:|:----------------------------:|
+|     **Ref**     | 0.025 |  300 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
 |       R20       |  0.02 |  300 |  1  |    L    |   <ul><li>- [ ] </li></ul>   |
 |       R30       |  0.03 |  300 |  1  |    L    |   <ul><li>- [ ] </li></ul>   |
 |       D100      | 0.025 |  100 |  1  |    L    |   <ul><li>- [ ] </li></ul>   |
