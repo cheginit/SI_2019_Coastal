@@ -12,9 +12,11 @@ Metrics:
 - **S**inuosity: Curvilinear Length/Straight Line Length)
 - **T**ides: Low Range, High Range, w/Surge
 
-| Physical Parameters | (R)oughness | (D)ischarge | (S)inuosity | (T)ides   |
-|---------------------|-------------|-------------|-------------|-----------|
-| Default Values      | 0.025       | 300         | 1           | Low Range |
+Default Values:
+- R = 0.025
+- D = 300 cms
+- S = 1
+- T = Low range
 
 | Simulation Name |   R   |   D  |  S  |    T    |            status            |
 |:---------------:|:-----:|:----:|:---:|:-------:|:----------------------------:|
@@ -30,7 +32,6 @@ Metrics:
 Domain Parameters:
 - Estuary Dimensions/Shape	River Width(s)
 - Barrier Island/Spit	Bathymetry/Topography	Shipping Channel
-- Dominant Tidal Constituents
 
 ## Deliverable
 
