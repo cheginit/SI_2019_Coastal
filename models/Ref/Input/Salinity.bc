@@ -1,0 +1,55 @@
+[forcing]
+Name                            = Boundary01_0001
+Function                        = timeseries
+Time-interpolation              = linear
+Vertical position type          = single
+Vertical interpolation          = linear
+Quantity                        = time
+Unit                            = seconds since 2018-03-01 00:00:00
+Quantity                        = salinitybnd
+Unit                            = ppt
+Vertical position               = 1
+0        1
+2588400  1
+
+[forcing]
+Name                            = Boundary01_0002
+Function                        = timeseries
+Time-interpolation              = linear
+Vertical position type          = single
+Vertical interpolation          = linear
+Quantity                        = time
+Unit                            = seconds since 2018-03-01 00:00:00
+Quantity                        = salinitybnd
+Unit                            = ppt
+Vertical position               = 1
+0        1
+2588400  1
+
+[forcing]
+Name                            = Boundary02_0001
+Function                        = timeseries
+Time-interpolation              = linear
+Vertical position type          = single
+Vertical interpolation          = linear
+Quantity                        = time
+Unit                            = seconds since 2018-03-01 00:00:00
+Quantity                        = salinitybnd
+Unit                            = ppt
+Vertical position               = 1
+0        36
+2588400  36
+
+[forcing]
+Name                            = Boundary02_0002
+Function                        = timeseries
+Time-interpolation              = linear
+Vertical position type          = single
+Vertical interpolation          = linear
+Quantity                        = time
+Unit                            = seconds since 2018-03-01 00:00:00
+Quantity                        = salinitybnd
+Unit                            = ppt
+Vertical position               = 1
+0        36
+2588400  36
