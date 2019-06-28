@@ -60,6 +60,7 @@ The following steps should be taken for using `gantt.py`:
 conda create -n gantt plotly pandas psutil
 ```
 then activate the environment ```conda activate gantt```.
+
 3. Install an extra packages:
 ```bash
 conda install -c plotly plotly-orca
