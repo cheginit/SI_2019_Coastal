@@ -6,6 +6,28 @@ As part of summer institute 2019 held in National Water Center, Coastal Group wo
 <img src="https://github.com/taataam/SI_2019_Coastal/blob/master/src/gantt/Gantt.png" width="800">
 
 ## Objectives
+Metrics:
+- **R**oughness Manning's (-)
+- **D**ischarge (cms)
+- **S**inuosity: Curvilinear Length/Straight Line Length
+- **T**ides: Low Range, High Range, w/Surge
+
+
+| Simulation Name |   R   |   D  |  S  |    T    |            status            |
+|:---------------:|:-----:|:----:|:---:|:-------:|:----------------------------:|
+|     **Ref**     | 0.025 |  300 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
+|       R20       |  0.02 |  300 |  1  |    L    |   <ul><li>- [ ] </li></ul>   |
+|       R30       |  0.03 |  300 |  1  |    L    |   <ul><li>- [ ] </li></ul>   |
+|       D100      | 0.025 |  100 |  1  |    L    |   <ul><li>- [ ] </li></ul>   |
+|      D2000      | 0.025 | 2000 |  1  |    L    |   <ul><li>- [ ] </li></ul>   |
+|       S150      | 0.025 |  300 | 1.5 |    L    |   <ul><li>- [ ] </li></ul>   |
+|       S300      | 0.025 |  300 |  3  |    L    |   <ul><li>- [ ] </li></ul>   |
+|        TH       | 0.025 |  300 |  1  |    H    |   <ul><li>- [ ] </li></ul>   |
+|        TS       | 0.025 |  300 |  1  | w/Surge |   <ul><li>- [ ] </li></ul>   |
+
+Domain Parameters:
+- Estuary Dimensions/Shape	River Width(s)
+- Barrier Island/Spit	Bathymetry/Topography	Shipping Channel
 
 ## Deliverable
 
