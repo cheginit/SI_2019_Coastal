@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from shapely.ops import nearest_points
 from shapely.geometry import Point, MultiPoint
 from py_noaa import coops
@@ -15,24 +16,53 @@ def get_tides(start, end, lon, lat):
     nearest_station_loc = nearest_points(Point(lon, lat), MultiPoint(coords))[1]
     idx = coords.index(nearest_station_loc)
 
-    df_water_levels = coops.get_data(
+    noaa_predict = coops.get_data(
+        begin_date=start,
+        end_date=end,
+        stationid=stations.iloc[idx].ID,
+        product="predictions",
+        datum="MSL",
+        interval="h",
+        units="metric",
+        time_zone="gmt")
+    noaa_predict['predicted_wl'] =  noaa_predict.predicted_wl.astype('float')
+
+    return noaa_predict
+
+
+def get_water_levels(start, end, lon, lat):
+    """
+    date format: YYYYDDMM
+    Returns: phase, amplitude
+    """
+    stations = pd.read_csv('noaa_stations.csv', parse_dates=[1])
+    coords = [Point(ln, lt) for ln, lt in zip(stations.Longitude, stations.Latitude)]
+    nearest_station_loc = nearest_points(Point(lon, lat), MultiPoint(coords))[1]
+    idx = coords.index(nearest_station_loc)
+
+    water_levels = coops.get_data(
         begin_date=start,
         end_date=end,
         stationid=stations.iloc[idx].ID,
         product="water_level",
         datum="MSL",
+        interval="h",
         units="metric",
         time_zone="gmt")
     
-    dates = pd.to_datetime(df_water_levels.index) # a datetime.datetime list of dates
-    elevation = df_water_levels.water_level.values # a list of surface elevation values
+    return water_levels
+
+def tide_constituents(water_levels):
+    
+    dates = pd.to_datetime(water_levels.index) # a datetime.datetime list of dates
+    elevation = water_levels.water_level.astype('float') # a list of surface elevation values
 
     # Set up the bits needed for TAPPY. This is mostly lifted from
     # tappy.py in the baker function "analysis" (around line 1721).
     quiet = True
     debug = False
-    outputts = True
-    outputxml = 'mobile.xml'
+    outputts = False
+    outputxml = False
     ephemeris = False
     rayleigh = 1.0
     print_vau_table = False
@@ -74,4 +104,36 @@ def get_tides(start, end, lon, lat):
     # the analysis
     x.constituents()
     
-    return df_water_levels, x
+    return x
+
+
+def sum_signals(constituents, hours, speed_dict, amp, phase):
+    import astronomia.calendar as cal
+
+
+    jd = [cal.cal_to_jd(i.year, i.month, i.day) + cal.hms_to_fday(i.hour, i.minute, i.second) for i in hours]
+    hours = np.array(jd).flatten()
+    hours = (hours - hours[0]) * 24.0
+    total = np.zeros(len(hours), dtype=np.float64)
+
+    deg2rad = np.pi/180.0
+    for i in constituents:
+        total = total + amp[i] * speed_dict[i]['FF'] * np.cos(speed_dict[i]['speed'] * hours - (phase[i] - speed_dict[i]['VAU']) * deg2rad)
+    return total
+
+
+def wl_prediction(data, start, end, interval=1):
+    d = start
+    p =  []
+    
+    while d < end:
+        start_ = d
+        end_ = start_ + pd.DateOffset(interval)
+        end_ = end_ if end_ < end else end
+        tide = tide_constituents(data.loc[start_:end_])
+        prediction = 0.0 if 'Z0' not in list(tide.speed_dict.keys()) else tide.speed_dict['Z0']
+        prediction += sum_signals(tide.key_list, tide.dates, tide.speed_dict, tide.r, tide.phase)
+        p.append(prediction[:-1])
+        d = end_
+
+    return pd.DataFrame({'prediction': np.hstack(p)}, index=data.loc[start:end].index[:-1])
