@@ -61,8 +61,7 @@ def get_discharge(gis_dir, start, end, coords):
     return df[['sitecode','val', 'unit']].copy()
 
 
-
-def nwis_json(site='01646500', parm='00065', start=None, end=None, period=None, freq='iv'):
+def nwis_json(site, parm='00060', start=None, end=None, period=None, freq='dv'):
     """Obtain NWIS data via JSON.
 
     Parameters
@@ -74,8 +73,8 @@ def nwis_json(site='01646500', parm='00065', start=None, end=None, period=None, 
         e.g. '00065' for water level, '00060' for discharge.
     freq : str, optional
         Data frequency. Valid values are:
-        - 'iv' for unit-value data (default)
-        - 'dv' for daily average data
+        - 'iv' for unit-value data
+        - 'dv' for daily average data (default)
     start : str, optional
     end : str, optional
         Start and end dates in ISO-8601 format (e.g. '2016-07-01').
@@ -152,6 +151,23 @@ def nwis_json(site='01646500', parm='00065', start=None, end=None, period=None, 
                                  'latitude',
                                  'longitude',
                                  'srs']).set_index('time')
+
+
+def get_peaks(site):
+    import io
+    from metpy.units import units
+
+
+    url = ('http://nwis.waterdata.usgs.gov/usa/nwis/peak?site_no=' + str(site) + '&agency_cd=USGS&format=hn2')
+    payload = requests.get(url).content
+    rawData = pd.read_csv(io.StringIO(payload.decode('utf-8')), skiprows=4, header=None, delim_whitespace=True)
+    rawData = rawData.loc[:, 1:3]
+    rawData.columns = ['date', 'qpeak']
+    rawData['date'] = pd.to_datetime(rawData.date.astype('str'))
+    rawData.set_index('date', inplace=True, drop=True)
+    rawData['qpeak'] = rawData.qpeak.apply(lambda x: (x * units('ft^3/s')).to_base_units().magnitude)
+
+    return rawData
 
 
 def get_lulc(input_dir, geometry, station_id, width=2000):
@@ -410,7 +426,7 @@ def conversion(coords):
     return (float(new[0]) + float(new[1])/60.0 + float(new[2])/3600.0) * direction[new_dir]
 
 
-def write_wl_bc(water_level, key):
+def write_wl_bc(water_level, key, out_dir):
     bcs = ['templates/WaterLevel_1.bc', 'templates/WaterLevel_2.bc']
     bc_1 = 'WaterLevel_1.bc'
     bc_2 = 'WaterLevel_2.bc'
@@ -423,20 +439,22 @@ def write_wl_bc(water_level, key):
             print(line.replace('seconds since 2001-01-01 00:00:00', 'seconds since ' + str(water_level.index[0])), end='')
     [water_level.to_csv(f, sep=' ', mode='a', header=None, index=False) for f in [bc_1, bc_2]]
 
-    if os.path.exists('WaterLevel_' + key.strip() + '.bc'):
-        os.remove('WaterLevel_' + key.strip() + '.bc')
+    if not Path(out_dir).exists():
+        Path(out_dir).mkdir()
 
-    with open('WaterLevel_' + key.strip() + '.bc', 'w') as f:
+    with open(Path(out_dir, 'WaterLevel_' + key.strip() + '.bc'), 'w') as f:
         for bc in [bc_1, bc_2]:
             with open(bc,'r') as file: f.write(file.read())
 
-    [os.remove(f) for f in [bc_1, bc_2]]
     [os.remove(f) for f in Path().glob('*.bak')]
+    [os.remove(f) for f in Path().glob('*.bc')]
 
 
-def write_q_bc(start_date, start_sec, end_sec, discharge):
+def write_q_bc(start_date, start_sec, end_sec, discharge, out_dir):
     tmp = 'templates/Discharge.bc'
-    bcs = ['Discharge_min.bc', 'Discharge_mean.bc', 'Discharge_max.bc']
+    bcs = [Path(out_dir, 'Discharge_low.bc'),
+           Path(out_dir, 'Discharge_ref.bc'),
+           Path(out_dir, 'Discharge_high.bc')]
 
     [shutil.copyfile(tmp, bc) for bc in bcs]
 
@@ -452,4 +470,6 @@ def write_q_bc(start_date, start_sec, end_sec, discharge):
         with fileinput.FileInput(bc, inplace=True) as file:
             for line in file:
                 print(line.replace('tmax     Q', str(end_sec) + '    ' + str(q)), end='')
+
     [os.remove(f) for f in Path().glob('*.bak')]
+    [os.remove(f) for f in Path().glob('*.bc')]
