@@ -51,4 +51,21 @@ cd tappy
 python setup.py install
 ```
 
-An example showing how to use the code is provided in `src/tide_constituents/mobile_bay.py` 
+An example showing how to use the code is provided in `src/tide_constituents/mobile_bay.py`
+
+The following steps should be taken for using `gantt.py`:
+1. Install Anaconda and load it in a command line.
+2. Run the following command to create a new environment called `gantt`:
+```bash
+conda create -n gantt plotly pandas psutil
+```
+then activate the environment ```conda activate gantt```.
+3. Install an extra packages:
+```bash
+conda install -c plotly plotly-orca
+``` 
+4. Then go the script's directory and run it:
+```bash
+cd src/gantt
+python gantt_chart.py
+```
