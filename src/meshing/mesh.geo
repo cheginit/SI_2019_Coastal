@@ -1,6 +1,8 @@
 // gmsh -2 -format msh mesh.geo
 // gmsh -2 -refine 2 mesh.msh
 // gmsh -2 -format vtk mesh.msh
+// meshio-convert mesh.msh mesh.e
+// python e2dfm.py
 
 ls = 1;
 
