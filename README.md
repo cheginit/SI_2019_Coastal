@@ -6,28 +6,48 @@ As part of summer institute 2019 held in National Water Center, Coastal Group wo
 <img src="https://github.com/taataam/SI_2019_Coastal/blob/master/src/gantt/Gantt.png" width="800">
 
 ## Objectives
-Metrics:
+
+Simulation Scenarios:
 - **R**oughness Manning's (-)
 - **D**ischarge (cms)
-- **S**inuosity: Curvilinear Length/Straight Line Length
 - **T**ides: Low Range, High Range, w/Surge
-
 
 | Simulation Name |   R   |   D  |  S  |    T    |            status            |
 |:---------------:|:-----:|:----:|:---:|:-------:|:----------------------------:|
 |     **Ref**     | 0.025 |  300 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
 |       R20       | 0.020 |  300 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
 |       R30       | 0.030 |  300 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
+|       D0        | 0.025 |    0 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
 |      D1000      | 0.025 | 1000 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
 |      D2000      | 0.025 | 2000 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
-|       S150      | 0.025 |  300 | 1.5 |    L    |   <ul><li>- [ ] </li></ul>   |
-|       S300      | 0.025 |  300 |  3  |    L    |   <ul><li>- [ ] </li></ul>   |
 |        TH       | 0.025 |  300 |  1  |    H    |   <ul><li>- [ ] </li></ul>   |
-|        TS       | 0.025 |  300 |  1  | w/Surge |   <ul><li>- [ ] </li></ul>   |
+|        TS       | 0.025 |  300 |  1  | w/Surge |   <ul><li>- [x] </li></ul>   |
 
 Domain Parameters:
-- Estuary Dimensions/Shape	River Width(s)
-- Barrier Island/Spit	Bathymetry/Topography	Shipping Channel
+- Classes:
+  1) River discharge directly in the ocean
+  2) River discharge in triangular bay
+  3) River discharge in trapezoidal/rectangular bay
+
+River geometry:
+- **S**inuosity: Curvilinear Length/Straight Line Length
+  A) S = 1
+  B) S > 1
+- **Wr** River width
+
+Bay/Estuary geometry:
+- **Wt** Bay width at river end (upstream) - Wt = Wr in triagular geometry
+- **Wb** Bay width at ocean end (downstream)
+- **Lb** Bay length 
+- Parameters:
+  * Rbr = Wb / Wr
+  * Rbt = Wb / Wt
+  * Rlb = Lb / Wb
+
+Barrier Island:
+- Opening length
+
+Spit	Bathymetry/Topography	Shipping Channel
 
 ## Deliverable
 
