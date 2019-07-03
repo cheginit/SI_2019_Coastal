@@ -20,7 +20,7 @@ Simulation Scenarios:
 |       D0        | 0.025 |    0 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
 |      D1000      | 0.025 | 1000 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
 |      D2000      | 0.025 | 2000 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
-|        TH       | 0.025 |  300 |  1  |    H    |   <ul><li>- [ ] </li></ul>   |
+##|        TH       | 0.025 |  300 |  1  |    H    |   <ul><li>- [ ] </li></ul>   |
 |        TS       | 0.025 |  300 |  1  | w/Surge |   <ul><li>- [x] </li></ul>   |
 
 Domain Parameters:
