@@ -49,8 +49,9 @@ Barrier Island:
 
 Spit	Bathymetry/Topography	Shipping Channel
 
-Idealized models domains:
-<img src="https://github.com/taataam/SI_2019_Coastal/blob/master/src/Domains.png" width="400">
+Idealized models domains
+
+<img src="https://github.com/taataam/SI_2019_Coastal/blob/master/src/Fig-Domains.png" width="600">
 
 ## Deliverable
 
