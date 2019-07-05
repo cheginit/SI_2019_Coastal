@@ -1,12 +1,3 @@
-[forcing]
-Name                            = Boundary02_0001
-Function                        = timeseries
-Time-interpolation              = linear
-Quantity                        = time
-Unit                            = seconds since 2018-08-01 00:00:00
-Quantity                        = waterlevelbnd
-Unit                            = m
-
 0 0.002
 360 -0.005
 720 -0.012
@@ -7208,16 +7199,6 @@ Unit                            = m
 2591280 0.096
 2591640 0.09300000000000001
 2592000 0.09
-
-[forcing]
-Name                            = Boundary02_0002
-Function                        = timeseries
-Time-interpolation              = linear
-Quantity                        = time
-Unit                            = seconds since 2018-08-01 00:00:00
-Quantity                        = waterlevelbnd
-Unit                            = m
-
 0 0.002
 360 -0.005
 720 -0.012

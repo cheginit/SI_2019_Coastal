@@ -13,9 +13,9 @@ tri = data.loc[data.Shape == 'triangle', ['Lon', 'Lat', 'Rlb', 'Rbr', 'Distance'
 
 fig, gs, canvas = utils.make_canvas(5, 5)
 ax = fig.add_subplot(gs[0])
-trap.plot(kind='scatter', x='Distance', y='Rlb', marker='^', color='b', ax=ax)
-tri.plot(kind='scatter', x='Distance', y='Rlb', marker='o', color='r', ax=ax)
+tri.plot(kind='scatter', x='Distance', y='Rlb', marker='^', color='g', ax=ax)
+trap.plot(kind='scatter', x='Distance', y='Rlb', marker='s', color='#FFA500', ax=ax)
 ax.set_xlabel('Distance from Corpus Christi (km)')
 ax.set_ylabel('$R_{lb} = \\dfrac{L_b}{W_b}$')
-ax.legend(['Trapezoid', 'Triangle'])
+ax.legend(['Triangle', 'Trapezoid'])
 canvas.print_figure("ratio.png", format="png", dpi=300);

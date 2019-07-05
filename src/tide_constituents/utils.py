@@ -6,7 +6,7 @@ import shutil
 import os
 
 
-def get_discharge(gis_dir, start, end, coords):
+def get_discharge(gis_dir, start, end, coords, station_id=None):
     '''Downloads climate and observation data from Daymet and USGS, respectively.
 
         Args:
@@ -33,26 +33,27 @@ def get_discharge(gis_dir, start, end, coords):
     import geopandas as gpd
     from metpy.units import units
 
-    # Get x, y coords from swmm if given and transform to lat, lon
-    lon, lat = coords
+    if station_id is None:
+        # Get x, y coords from swmm if given and transform to lat, lon
+        lon, lat = coords
 
-    loc_path = Path(gis_dir, 'GageLoc.shp')
-    if not loc_path.exists():
-        raise FileNotFoundError('GageLoc.shp cannot be found in ' +
-                                str(gis_dir))
-    else:
-        gloc = gpd.read_file(loc_path)
+        loc_path = Path(gis_dir, 'GageLoc.shp')
+        if not loc_path.exists():
+            raise FileNotFoundError('GageLoc.shp cannot be found in ' +
+                                    str(gis_dir))
+        else:
+            gloc = gpd.read_file(loc_path)
 
-    # Get station ID based on lat/lon
-    point = Point(lon, lat)
-    pts = gloc.geometry.unary_union
-    station = gloc[gloc.geometry.geom_equals(nearest_points(point, pts)[1])]
-    station_id = station.SOURCE_FEA.values[0]
+        # Get station ID based on lat/lon
+        point = Point(lon, lat)
+        pts = gloc.geometry.unary_union
+        station = gloc[gloc.geometry.geom_equals(nearest_points(point, pts)[1])]
+        station_id = station.SOURCE_FEA.values[0]
 
     start, end = pd.to_datetime(start), pd.to_datetime(end)
 
     # Download streamflow observations from USGS
-    df = nwis_json(site=station_id,
+    df = nwis_json(site=str(station_id),
                    parm='00060',
                    start= start.strftime('%Y-%m-%d'),
                    end=end.strftime('%Y-%m-%d'),
@@ -426,50 +427,69 @@ def conversion(coords):
     return (float(new[0]) + float(new[1])/60.0 + float(new[2])/3600.0) * direction[new_dir]
 
 
-def write_wl_bc(water_level, key, out_dir):
-    bcs = ['templates/WaterLevel_1.bc', 'templates/WaterLevel_2.bc']
-    bc_1 = 'WaterLevel_1.bc'
-    bc_2 = 'WaterLevel_2.bc'
+def write_wl_bc(water_level, key, ptype):
+    if not Path(ptype).exists():
+        Path(ptype).mkdir()
 
-    shutil.copyfile(bcs[0], bc_1)
-    shutil.copyfile(bcs[1], bc_2)
+    if ptype == 'dflow':
+        bcs = ['templates/WaterLevel_1.bc', 'templates/WaterLevel_2.bc']
+        bc_1 = 'WaterLevel_1.bc'
+        bc_2 = 'WaterLevel_2.bc'
 
-    with fileinput.FileInput([bc_1, bc_2], inplace=True) as file:
-        for line in file:
-            print(line.replace('seconds since 2001-01-01 00:00:00', 'seconds since ' + str(water_level.index[0])), end='')
-    [water_level.to_csv(f, sep=' ', mode='a', header=None, index=False) for f in [bc_1, bc_2]]
+        shutil.copyfile(bcs[0], bc_1)
+        shutil.copyfile(bcs[1], bc_2)
 
-    if not Path(out_dir).exists():
-        Path(out_dir).mkdir()
-
-    with open(Path(out_dir, 'WaterLevel_' + key.strip() + '.bc'), 'w') as f:
-        for bc in [bc_1, bc_2]:
-            with open(bc,'r') as file: f.write(file.read())
-
-    [os.remove(f) for f in Path().glob('*.bak')]
-    [os.remove(f) for f in Path().glob('*.bc')]
-
-
-def write_q_bc(start_date, start_sec, end_sec, discharge, out_dir):
-    tmp = 'templates/Discharge.bc'
-    bcs = [Path(out_dir, 'Discharge_low.bc'),
-           Path(out_dir, 'Discharge_ref.bc'),
-           Path(out_dir, 'Discharge_high.bc')]
-
-    [shutil.copyfile(tmp, bc) for bc in bcs]
-
-    with fileinput.FileInput(bcs, inplace=True) as file:
-        for line in file:
-            print(line.replace('seconds since 2001-01-01 00:00:00', 'seconds since ' + str(start_date)), end='')
-
-    for bc, q in zip(bcs, discharge):
-        with fileinput.FileInput(bc, inplace=True) as file:
+        with fileinput.FileInput([bc_1, bc_2], inplace=True) as file:
             for line in file:
-                print(line.replace('tmin     Q', str(start_sec) + '    ' + str(q)), end='')
+                print(line.replace('seconds since 2001-01-01 00:00:00', 'seconds since ' + str(water_level.index[0])), end='')
+        [water_level.to_csv(f, sep=' ', mode='a', header=None, index=False) for f in [bc_1, bc_2]]
 
-        with fileinput.FileInput(bc, inplace=True) as file:
+        with open(Path(ptype, 'WaterLevel_' + key.strip() + '.bc'), 'w') as f:
+            for bc in [bc_1, bc_2]:
+                with open(bc,'r') as file: f.write(file.read())
+
+        [os.remove(f) for f in Path().glob('*.bak')]
+        [os.remove(f) for f in Path().glob('*.bc')]
+    elif ptype == 'geoclaw':
+        water_level.to_csv(Path(ptype, 'water_level_' + key.strip() + '.bc'),
+                           sep=' ', mode='a', header=None, index=False)
+    else:
+        raise KeyError('key can only be dflow or geoclaw')
+
+
+def write_q_bc(start_date, start_sec, end_sec, discharge, ptype):
+    if not Path(ptype).exists():
+        Path(ptype).mkdir()
+
+    if ptype == 'dflow':
+        tmp = 'templates/Discharge.bc'
+        bcs = [Path(ptype, 'Discharge_low.bc'),
+               Path(ptype, 'Discharge_ref.bc'),
+               Path(ptype, 'Discharge_high.bc')]
+
+        [shutil.copyfile(tmp, bc) for bc in bcs]
+
+        with fileinput.FileInput(bcs, inplace=True) as file:
             for line in file:
-                print(line.replace('tmax     Q', str(end_sec) + '    ' + str(q)), end='')
+                print(line.replace('seconds since 2001-01-01 00:00:00', 'seconds since ' + str(start_date)), end='')
 
-    [os.remove(f) for f in Path().glob('*.bak')]
-    [os.remove(f) for f in Path().glob('*.bc')]
+        for bc, q in zip(bcs, discharge):
+            with fileinput.FileInput(bc, inplace=True) as file:
+                for line in file:
+                    print(line.replace('tmin     Q', str(start_sec) + '    ' + str(q)), end='')
+
+            with fileinput.FileInput(bc, inplace=True) as file:
+                for line in file:
+                    print(line.replace('tmax     Q', str(end_sec) + '    ' + str(q)), end='')
+
+        [os.remove(f) for f in Path().glob('*.bak')]
+        [os.remove(f) for f in Path().glob('*.bc')]
+    elif ptype == 'geoclaw':
+        file = Path(ptype, 'discharge.bc')
+        with open(file, 'w') as f:
+            f.write(f'Q_low = {discharge[0]:.5f}\n')
+            f.write(f'Q_ref = {discharge[1]:.5f}\n')
+            f.write(f'Q_high = {discharge[2]:.5f}\n')
+            
+    else:
+        raise KeyError('key can only be dflow or geoclaw')

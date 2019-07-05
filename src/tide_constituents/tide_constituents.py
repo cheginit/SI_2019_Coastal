@@ -2,11 +2,11 @@ import pandas as pd
 import numpy as np
 from shapely.ops import nearest_points
 from shapely.geometry import Point, MultiPoint
-from py_noaa import coops
+import noaa_coops as nc
 from tappy import tappy
 
 
-def get_tides(start, end, lon, lat):
+def get_tides(start, end, lon, lat, interval=None):
     """
     date format: YYYYDDMM
     Returns: phase, amplitude
@@ -16,34 +16,48 @@ def get_tides(start, end, lon, lat):
     nearest_station_loc = nearest_points(Point(lon, lat), MultiPoint(coords))[1]
     idx = coords.index(nearest_station_loc)
 
-    noaa_predict = coops.get_data(
-        begin_date=start,
-        end_date=end,
-        stationid=stations.iloc[idx].ID,
-        product="predictions",
-        datum="MSL",
-        interval="h",
-        units="metric",
-        time_zone="gmt")
+    station = nc.Station(stations.iloc[idx].ID)
+    if interval == None:
+        noaa_predict = station.get_data(
+            begin_date=start,
+            end_date=end,
+            product="predictions",
+            datum="MSL",
+            units="metric",
+            time_zone="gmt")
+    elif interval == 'h' or interval == 'hilo':
+        noaa_predict = station.get_data(
+            begin_date=start,
+            end_date=end,
+            product="predictions",
+            datum="MSL",
+            interval=interval,
+            units="metric",
+            time_zone="gmt")
+    else:
+        raise KeyError('interval can only be h (hourly) or hilo (high and low) or None (6 min)')
+        
     noaa_predict['predicted_wl'] =  noaa_predict.predicted_wl.astype('float')
 
     return noaa_predict
 
 
-def get_water_levels(start, end, lon, lat):
+def get_water_levels(start, end, lon, lat, station_id=None):
     """
     date format: YYYYDDMM
     Returns: phase, amplitude
     """
-    stations = pd.read_csv('noaa_stations.csv', parse_dates=[1])
-    coords = [Point(ln, lt) for ln, lt in zip(stations.Longitude, stations.Latitude)]
-    nearest_station_loc = nearest_points(Point(lon, lat), MultiPoint(coords))[1]
-    idx = coords.index(nearest_station_loc)
+    if station_id == None:
+        stations = pd.read_csv('noaa_stations.csv', parse_dates=[1])
+        coords = [Point(ln, lt) for ln, lt in zip(stations.Longitude, stations.Latitude)]
+        nearest_station_loc = nearest_points(Point(lon, lat), MultiPoint(coords))[1]
+        idx = coords.index(nearest_station_loc)
+        station_id = stations.iloc[idx].ID
 
-    water_levels = coops.get_data(
+    station = nc.Station(str(station_id))
+    water_levels = station.get_data(
         begin_date=start,
         end_date=end,
-        stationid=stations.iloc[idx].ID,
         product="water_level",
         datum="MSL",
         interval="h",
@@ -118,6 +132,7 @@ def sum_signals(constituents, hours, speed_dict, amp, phase):
 
     deg2rad = np.pi/180.0
     for i in constituents:
+        speed_dict[i]['FF'] = np.ones_like(speed_dict[i]['FF'])
         total = total + amp[i] * speed_dict[i]['FF'] * np.cos(speed_dict[i]['speed'] * hours - (phase[i] - speed_dict[i]['VAU']) * deg2rad)
     return total
 

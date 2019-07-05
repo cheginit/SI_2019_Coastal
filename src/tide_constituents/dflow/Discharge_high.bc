@@ -3,10 +3,10 @@ Name                            = Boundary01_0001
 Function                        = timeseries
 Time-interpolation              = linear
 Quantity                        = time
-Unit                            = seconds since 2018-03-01 00:00:00
+Unit                            = seconds since 2018-01-01 06:00:00+00:00
 Quantity                        = dischargebnd
 Unit                            = m³/s
 
-0    78.15449659391999
-2588400    78.15449659391999
+0    35.112889774079996
+31449600    35.112889774079996
 
