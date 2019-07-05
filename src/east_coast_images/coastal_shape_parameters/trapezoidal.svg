@@ -14,7 +14,7 @@
    viewBox="0 0 154.68251 277.71658"
    version="1.1"
    id="svg8"
-   sodipodi:docname="trapizoidal.svg"
+   sodipodi:docname="trapezoidal.svg"
    inkscape:version="0.92.3 (2405546, 2018-03-11)">
   <sodipodi:namedview
      id="base"
@@ -24,12 +24,12 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="40.483278"
-     inkscape:cy="466.67949"
+     inkscape:cx="254.76899"
+     inkscape:cy="516.67949"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     showguides="true"
+     showguides="false"
      inkscape:guide-bbox="true"
      inkscape:window-width="1849"
      inkscape:window-height="1023"
@@ -40,16 +40,6 @@
        position="-45.976608,261.68532"
        orientation="0,1"
        id="guide5365"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="-28.589704,34.143647"
-       orientation="0,1"
-       id="guide5367"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="6.1841039,115.03055"
-       orientation="0,1"
-       id="guide5369"
        inkscape:locked="false" />
     <sodipodi:guide
        position="0.51446101,229.17937"
@@ -213,7 +203,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>

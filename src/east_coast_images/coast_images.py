@@ -3,6 +3,9 @@ import shapely.geometry as sgeom
 from pathlib import Path
 
 
+
+
+
 def get_us_east_coast(gis_data):    
     import numpy as np
 
@@ -22,7 +25,7 @@ def get_us_east_coast(gis_data):
     east = sgeom.MultiPoint([conus_points[i] for i in in_idx])
     east = gpd.GeoDataFrame(east)
     east.columns = ['geometry']
-    east.to_file(gis_data + 'east_coast.shp')
+    east.to_file(Path(gis_data, 'east_coast', 'east_coast.shp'))
 
 
 def get_image(lon, lat):
@@ -34,6 +37,10 @@ def get_image(lon, lat):
     from cartopy.io.img_tiles import Stamen
     from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 
+    from matplotlib.figure import Figure
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    import matplotlib.gridspec as gridspec
+
 
     img = Path('images', f'coast_{lon:.2f}_{lat:.2f}.png')
     if Path(img).exists():
@@ -41,10 +48,6 @@ def get_image(lon, lat):
 
     tiler = Stamen('toner')
     mercator = tiler.crs
-
-    from matplotlib.figure import Figure
-    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-    import matplotlib.gridspec as gridspec
 
     fig = Figure(figsize=(7, 7), frameon=False, dpi=300)
     canvas = FigureCanvas(fig)
@@ -84,9 +87,55 @@ def get_coords(gis_data='gis_data', skip_step=50):
 
     east_coast = gpd.read_file(Path(gis_data, 'east_coast', 'east_coast.shp'))
     east_coast_coords = sgeom.MultiPoint(east_coast.geometry.values)
+    points.geometry[::skip_step].to_file(Path(gis_data, 'feature_points', 'points.shp'))
     Parallel(n_jobs=2, prefer="threads")(delayed(get_image)(i.x, i.y) for i in east_coast_coords[::skip_step])
-    #[get_image(i.x, i.y) for i in east_coast_coords[::skip_step]]
 
+
+def plot_coords(fname):
+    import matplotlib
+    matplotlib.use('Agg')
+
+    import matplotlib.pyplot as plt
+    import cartopy.crs as ccrs
+    from cartopy.io.img_tiles import Stamen
+    from cartopy.io import shapereader
+    from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
+
+    from matplotlib.figure import Figure
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    import matplotlib.gridspec as gridspec
+
+
+    img = Path(f'images_coords.png')
+
+    tiler = Stamen('terrain-background')
+    mercator = tiler.crs
+
+    fig = Figure(figsize=(10, 7), frameon=False, dpi=300)
+    canvas = FigureCanvas(fig)
+    gs = gridspec.GridSpec(1, 1,
+                           left=0.05, right=0.95, bottom=0.05, top=0.95,
+                           wspace=None, hspace=None,
+                           width_ratios=None, height_ratios=None)
+    ax = fig.add_subplot(gs[0], projection=mercator)
+
+    ax.set_extent([-100.5, -58.37, 22.29, 50.09], crs=ccrs.PlateCarree())
+
+    ax.add_image(tiler, 7)
+    ax.coastlines('50m')
+
+    points = list(shapereader.Reader(fname).geometries())
+
+    ax.scatter([point.x for point in points],
+               [point.y for point in points],
+               transform=ccrs.PlateCarree(), s=3, marker='^')
+
+    gl = ax.gridlines(draw_labels=True)
+    gl.xlabels_top = gl.ylabels_right = False
+    gl.xformatter = LONGITUDE_FORMATTER
+    gl.yformatter = LATITUDE_FORMATTER
+    canvas.print_figure(img, format="png", dpi=300)
+    plt.close('all')
 
 if __name__ == '__main__':
     from sys import argv
