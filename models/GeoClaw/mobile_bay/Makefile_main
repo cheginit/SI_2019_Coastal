@@ -1,0 +1,20 @@
+# Start of the makefile
+# Defining variables
+objects = tide_module.o main.o
+f90comp = gfortran
+switch = -fopenmp -O3 -march=native -ffast-math -funroll-loops
+WL_INPUT = 'data/water_level.bc'
+
+# Makefile
+main: $(objects)
+	$(f90comp) -o main $(switch) $(objects)
+main.o: main.f90 tide_module.o
+	$(f90comp) -c $(switch) main.f90
+tide_module.o: tide_module.f90
+	$(f90comp) -c $(switch) tide_module.f90
+
+# Cleaning everything
+clean:
+	rm tide_module.mod
+	rm $(objects)
+# End of the makefile

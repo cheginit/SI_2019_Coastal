@@ -1,4 +1,3 @@
-
 """
 Module to create topo and qinit data files for this example.
 """
@@ -8,16 +7,16 @@ import numpy as np
 
 
 class MakeTopo():
-    def __init__(self, nxpoints, nypoints,
-                 xlower, ylower, xupper, yupper,
-                 outfile, topo_type=2):
-        self.nxpoints = nxpoints
-        self.nypoints = nypoints
-        self.xlower = xlower
-        self.ylower = ylower
-        self.xupper = xupper
-        self.yupper = yupper
-        self.outfile= outfile
+    def __init__(self, bay, outfile, topo_type=2):
+        self.nxpoints = np.int64(4.0 *
+                                 (bay.x_o2 - bay.x_o1) / bay.cell_size) + 1
+        self.nypoints = np.int64(4.0 *
+                                 (bay.y_r - bay.y0) / bay.cell_size) + 1
+        self.xlower = bay.x_o1
+        self.ylower = bay.y0
+        self.xupper = bay.x_o2
+        self.yupper = bay.y_r
+        self.outfile = outfile
         self.topo_type = topo_type
 
     def generate(self, topo_func):
@@ -32,27 +31,53 @@ class MakeTopo():
 
 
 def topo(x, y):
+    from bay import Bay
     z = np.zeros_like(x) + 10
+
+    mobile = Bay('trapezoidal', 10e3, 20.0, 0.67, 1.23, -5e3)
     for i in range(x.shape[0]):
         for j in range(x.shape[1]):
-            if x[i, j] >= 0.0 and x[i, j] <= 50.0e3 and y[i, j] >= 0.0 and y[i, j] <= 40.0e3:
-                p, q, r = np.array([0, 0, -35]), np.array([50e3, 0, -35]), np.array([0, 40e3, -10])
-            elif x[i, j] >= 10.0e3 and x[i, j] <= 40.0e3 and y[i, j] >= 40.0e3 and y[i, j] <= 80.0e3:
-                p, q, r = np.array([10e3, 40e3, -10]), np.array([40e3, 40e3, -10]), np.array([20e3, 80e3, -2])
-            elif x[i, j] >= 20.0e3 and x[i, j] <= 30.0e3 and y[i, j] >= 80.0e3 and y[i, j] <= 130.0e3:
-                p, q, r = np.array([20e3, 80e3, -2]), np.array([30e3, 80e3, -2]), np.array([20e3, 130e3, -1])
+            if x[i, j] >= mobile.x_o1 and \
+               x[i, j] <= mobile.x_o2 and \
+               y[i, j] >= mobile.y0 and \
+               y[i, j] <= mobile.y_o:
+
+                p = np.array([mobile.x_o1, mobile.y0, mobile.z0])
+                q = np.array([mobile.x_o2, mobile.y0, mobile.z0])
+                r = np.array([mobile.x_o1, mobile.y_o, mobile.z_o])
+            elif x[i, j] >= mobile.x_b1 and \
+                    x[i, j] <= mobile.x_b2 and \
+                    y[i, j] >= mobile.y_o and \
+                    y[i, j] <= mobile.y_b:
+
+                p = np.array([mobile.x_b1, mobile.y_o, mobile.z_o])
+                q = np.array([mobile.x_b2, mobile.y_o, mobile.z_o])
+                r = np.array([mobile.x_b3, mobile.y_b, mobile.z_b])
+            elif x[i, j] >= mobile.x_r1 and \
+                    x[i, j] <= mobile.x_r2 and \
+                    y[i, j] >= mobile.y_b and \
+                    y[i, j] <= mobile.y_r:
+
+                p = np.array([mobile.x_r1, mobile.y_b, mobile.z_b])
+                q = np.array([mobile.x_r2, mobile.y_b, mobile.z_b])
+                r = np.array([mobile.x_r1, mobile.y_r, mobile.z_r])
             else:
                 continue
-                
+
             pq = q - p
             pr = r - p
 
             a, b, c = np.cross(pq, pr)
-            z[i, j] = p[2] - a / c * (x[i, j] - p[0]) - b / c * (y[i, j] - p[1])
+            z[i, j] = p[2] - a / c * (x[i, j] - p[0]) - b / c * (y[i, j] -
+                                                                 p[1])
     return z
 
 
-if __name__=='__main__':
-    tp = MakeTopo(201, 521, 0e0, 0e0, 50e3, 130e3, 'mobile_bay.topotype2')
+if __name__ == '__main__':
+    from bay import Bay
+
+    mobile = Bay('trapezoidal', 10e3, 20.0, 0.67, 1.23, -5e3)
+
+    tp = MakeTopo(mobile, 'mobile_bay.topotype2')
     tp.topo_type = 2
     tp.generate(topo)

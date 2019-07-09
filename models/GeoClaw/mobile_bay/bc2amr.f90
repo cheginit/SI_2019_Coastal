@@ -3,10 +3,10 @@
 !! \callergraph
 !!  Take a grid patch with mesh widths **hx**,**hy**, of dimensions **nrow** by
 !!  **ncol**,  and set the values of any piece of
-!!  of the patch which extends outside the physical domain 
-!!  using the boundary conditions. 
+!!  of the patch which extends outside the physical domain
+!!  using the boundary conditions.
 !!
-!!  
+!!
 !!   Specific to geoclaw:  extrapolates aux(i,j,1) at boundaries
 !!   to constant.
 !!
@@ -14,7 +14,7 @@
 !!
 !!  At each boundary  k = 1 (left),  2 (right),  3 (bottom), 4 (top):
 !!
-!!  mthbc(k) =  
+!!  mthbc(k) =
 !!  * 0  for user-supplied BC's (must be inserted!)
 !!  * 1  for zero-order extrapolation
 !!  * 2  for periodic boundary conditions
@@ -24,28 +24,28 @@
 !!                   component of q.
 !!  * 4  for sphere bcs (left half maps to right half of same side, and vice versa), as if domain folded in half
 !!
-!!  The corners of the grid patch are at 
+!!  The corners of the grid patch are at
 !!     (xlo_patch,ylo_patch)  --  lower left corner
 !!     (xhi_patch,yhi_patch) --  upper right corner
 !!
 !!  The physical domain itself is a rectangle bounded by
 !!     (xlower,ylower)  -- lower left corner
 !!     (xupper,yupper)  -- upper right corner
-!!  
+!!
 !   This figure below does not work with doxygen
-!   the picture is the following: 
+!   the picture is the following:
 !  ____________________________________________________
-! 
+!
 !                _____________________ (xupper,yupper)
-!               |                     |  
-!           ____|____ (xhi_patch,yhi_patch)   
+!               |                     |
+!           ____|____ (xhi_patch,yhi_patch)
 !           |   |    |                |
 !           |   |    |                |
 !           |   |    |                |
 !           |___|____|                |
 !  (xlo_patch,ylo_patch) |            |
 !               |                     |
-!               |_____________________|   
+!               |_____________________|
 !    (xlower,ylower)
 !  ____________________________________________________
 !!
@@ -53,11 +53,11 @@
 !>  Any cells that lie outside the physical domain are ghost cells whose
 !!  values should be set in this routine.  This is tested for by comparing
 !!  xlo_patch with xlower to see if values need to be set at the left
-!   as in the figure above, 
+!   as in the figure above,
 !
 !>  and similarly at the other boundaries.
 !!  Patches are guaranteed to have at least 1 row of cells filled
-!!  with interior values so it is possible to extrapolate. 
+!!  with interior values so it is possible to extrapolate.
 !!  Fix [trimbd()](@ref trimbd) if you want more than 1 row pre-set.
 !!
 !!  Make sure the order the boundaries are specified is correct
@@ -65,12 +65,12 @@
 !!
 !!  Periodic boundaries are set before calling this routine, so if the
 !!  domain is periodic in one direction only you
-!!  can safely extrapolate in the other direction. 
+!!  can safely extrapolate in the other direction.
 !!
 !!  Don't overwrite ghost cells in periodic directions!
 !!
 !! \param val data array for solution \f$q \f$ (cover the whole grid **msrc**)
-!! \param aux data array for auxiliary variables 
+!! \param aux data array for auxiliary variables
 !! \param nrow number of cells in *i* direction on this grid
 !! \param ncol number of cells in *j* direction on this grid
 !! \param meqn number of equations for the system
@@ -80,16 +80,18 @@
 !! \param level AMR level of this grid
 !! \param time setting ghost cell values at time **time**
 !! \param xlo_patch left bound of the input grid
-!! \param xhi_patch right bound of the input grid 
-!! \param ylo_patch lower bound of the input grid 
-!! \param yhi_patch upper bound of the input grid 
+!! \param xhi_patch right bound of the input grid
+!! \param ylo_patch lower bound of the input grid
+!! \param yhi_patch upper bound of the input grid
 ! ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::;
 
 subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, level, time,   &
-                  xlo_patch, xhi_patch, ylo_patch, yhi_patch) 
+                  xlo_patch, xhi_patch, ylo_patch, yhi_patch,   &
+                  wl_size, time_input, water_level)
 
     use amr_module, only: mthbc, xlower, ylower, xupper, yupper
     use amr_module, only: xperdom,yperdom,spheredom
+    use tide_module
 
     implicit none
 
@@ -100,28 +102,27 @@ subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, level, time,   &
     real(kind=8), intent(in) :: ylo_patch, yhi_patch
     real(kind=8), intent(in out) :: val(meqn, nrow, ncol)
     real(kind=8), intent(in out) :: aux(naux, nrow, ncol)
-    
+
+    ! Input/Output for for tide module
+    integer, intent(in out) :: wl_size
+    real(kind=8), dimension (:), allocatable, intent(in out) :: time_input, water_level
+    real(kind=8) :: wl
+
     ! Local storage
     integer :: i, j, ibeg, jbeg, nxl, nxr, nyb, nyt, iunit, istat, cntr
     real(kind=8) :: hxmarg, hymarg
-    
-    integer :: iunit_wl, n_rows
-    real(kind=8), dimension (:,:), allocatable :: data_array
-    real(kind=8), dimension (:), allocatable :: time_input, water_level
-    real(kind=8) :: tmp, y
-    character(len=255) :: data_dir
 
     hxmarg = hx * .01d0
     hymarg = hy * .01d0
 
-    ! Use periodic boundary condition specialized code only, if only one 
+    ! Use periodic boundary condition specialized code only, if only one
     ! boundary is periodic we still proceed below
     if (xperdom .and. (yperdom .or. spheredom)) then
         return
     end if
 
     ! Each check has an initial check to ensure that the boundary is a real
-    ! boundary condition and otherwise skips the code.  Otherwise 
+    ! boundary condition and otherwise skips the code.  Otherwise
     !-------------------------------------------------------
     ! Left boundary:
     !-------------------------------------------------------
@@ -225,53 +226,26 @@ subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, level, time,   &
 
         select case(mthbc(3))
             case(0) ! User defined boundary condition
-                iunit_wl = 10
-                call getenv("DATA_DIR", data_dir)
-                open(iunit_wl, file=trim(adjustl(data_dir))//'/water_level.bc', status='OLD', iostat=istat)
+                call setup_tide(time_input, water_level, wl_size)
 
-                rewind(iunit_wl)
-                n_rows = 0
-                do
-                    read(iunit_wl, *, iostat=istat) tmp
-                    if (is_iostat_end(istat)) exit
-                    n_rows = n_rows + 1
-                end do
-
-                allocate(data_array(n_rows, 2))
-                allocate(time_input(n_rows))
-                allocate(water_level(n_rows))
-
-                rewind(iunit_wl)
-                do i= 1, n_rows
-                    read(iunit_wl, *, iostat=istat) data_array(i,:)
-                end do
-
-                close(unit=iunit_wl, iostat=istat)
-
-                time_input(:) = data_array(:,1)
-                water_level(:) = data_array(:,2)
-
-                deallocate(data_array)
-
-                do i = 2, n_rows
+                do i = 2, wl_size
                     if ((time > time_input(i-1)) .and. (time < time_input(i))) then
-                        call parabola_val2(n_rows, time_input, water_level, i, time, y)
+                        call parabola_val2(wl_size, time_input, water_level, i, time, wl)
                         exit
                     end if
                 end do
 
-                deallocate(time_input)
-                deallocate(water_level)
-
                 do j = 1, nyb
                     do i = 1, nrow
+                        val(1,i,j) = wl
+                        val(2,i,j) = val(2, i, nyb + 1)
+                        val(3,i,j) = val(3, i, nyb + 1)
                         aux(:,i,j) = aux(:, i, nyb + 1)
-                        val(:,i,j) = y
                     end do
                 end do
                 ! Replace this code with a user defined boundary condition
                 ! stop "A user defined boundary condition was not provided."
-            
+
             case(1) ! Zero-order extrapolation
                 do j = 1, nyb
                     do i = 1, nrow
@@ -333,7 +307,7 @@ subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, level, time,   &
                 continue
 
             case(3) ! Wall boundary conditions
-                do j = jbeg, ncol 
+                do j = jbeg, ncol
                     do i = 1, nrow
                         aux(:, i, j) = aux(:, i, 2 * jbeg - 1 - j)
                         val(:, i, j) = val(:, i, 2 * jbeg - 1 - j)

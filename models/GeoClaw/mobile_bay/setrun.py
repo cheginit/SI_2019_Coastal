@@ -28,6 +28,7 @@ def setrun(claw_pkg='geoclaw'):
     """
 
     from clawpack.clawutil import data
+    from bay import Bay
 
     assert claw_pkg.lower() == 'geoclaw',  "Expected claw_pkg = 'geoclaw'"
 
@@ -58,17 +59,18 @@ def setrun(claw_pkg='geoclaw'):
     clawdata.num_dim = num_dim
 
     # Lower and upper edge of computational domain:
-    clawdata.lower[0] = 0.0
-    clawdata.upper[0] = 50.0e3
+    mobile = Bay('trapezoidal', 10e3, 20.0, 0.67, 1.23, -5e3)
+    clawdata.lower[0] = mobile.x_o1
+    clawdata.upper[0] = mobile.x_o2
 
-    clawdata.lower[1] = 0.0
-    clawdata.upper[1] = 130.0e3
+    clawdata.lower[1] = mobile.y0
+    clawdata.upper[1] = mobile.y_r
 
 
 
     # Number of grid cells: Coarsest grid
-    clawdata.num_cells[0] = 50
-    clawdata.num_cells[1] = 130
+    clawdata.num_cells[0] = int((mobile.x_o2 - mobile.x_o1) / mobile.cell_size)
+    clawdata.num_cells[1] = int((mobile.y_r - mobile.y0) / mobile.cell_size)
 
 
     # ---------------
@@ -318,9 +320,12 @@ def setrun(claw_pkg='geoclaw'):
 
     # gauges along x-axis:
     gaugeno = 0
-    for y in np.linspace(0.0, 130.0e3, 6):
+    for y in np.linspace(mobile.y0, mobile.y_r, 6):
         gaugeno += 1
-        rundata.gaugedata.gauges.append([gaugeno, 25.0e3, y, 0., 1e10])
+        rundata.gaugedata.gauges.append([gaugeno,
+                                         (mobile.x_o2 - mobile.x_o1) * 0.5,
+                                         y,
+                                         0., 1e10])
 
     return rundata
     # end of function setrun
