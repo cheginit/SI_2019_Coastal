@@ -23,6 +23,10 @@ def setplot(plotdata=None):
 
 
     from clawpack.visclaw import colormaps, geoplot
+    from bay import Bay
+
+
+    mobile = Bay('trapezoidal', 10e3, 20.0, 0.67, 1.23, -5e3)
 
     if plotdata is None:
         from clawpack.visclaw.data import ClawPlotData
@@ -65,19 +69,19 @@ def setplot(plotdata=None):
     plotitem = plotaxes.new_plotitem(plot_type='2d_pcolor')
     plotitem.plot_var = geoplot.land
     plotitem.pcolor_cmap = geoplot.land_colors
-    plotitem.pcolor_cmin = -35
+    plotitem.pcolor_cmin = mobile.z0
     plotitem.pcolor_cmax = 10
     plotitem.add_colorbar = False
     plotitem.amr_celledges_show = [0,0,0]
     plotitem.patchedges_show = 1
-    plotaxes.xlimits = [0,50e3]
-    plotaxes.ylimits = [0,130e3]
+    plotaxes.xlimits = [mobile.x_o1, mobile.x_o2]
+    plotaxes.ylimits = [mobile.y0, mobile.y_r]
 
     # Add contour lines of bathymetry:
     plotitem = plotaxes.new_plotitem(plot_type='2d_contour')
     plotitem.plot_var = geoplot.topo
     from numpy import arange, linspace
-    plotitem.contour_levels = linspace(-35.0, -1.0, 20)
+    plotitem.contour_levels = linspace(mobile.z0, mobile.z_r, 20)
     plotitem.amr_contour_colors = ['k']  # color on each level
     plotitem.kwargs = {'linestyles':'solid'}
     plotitem.amr_contour_show = [1]  
@@ -125,25 +129,38 @@ def setplot(plotdata=None):
 
     plotaxes.afteraxes = add_zeroline
     
-
+    
     #-----------------------------------------
-    # Figure for grids alone
+    # Figure for cross section
     #-----------------------------------------
-    plotfigure = plotdata.new_plotfigure(name='grids', figno=2)
-    plotfigure.show = True
+    plotfigure = plotdata.new_plotfigure(name='cross-section', figno=2)
 
     # Set up for axes in this figure:
     plotaxes = plotfigure.new_plotaxes()
-    plotaxes.xlimits = [0,50e3]
-    plotaxes.ylimits = [0,130e3]
-    plotaxes.title = 'grids'
-    plotaxes.scaled = True
+    plotaxes.xlimits = [mobile.y0, mobile.y_r]
+    plotaxes.ylimits = [-1, 1]
+    midx = 0.5 * (mobile.x_o2 - mobile.x_o1)
+    plotaxes.title = 'Cross section at x = ' + str(int(midx))
 
-    # Set up for item on these axes:
-    plotitem = plotaxes.new_plotitem(plot_type='2d_patch')
-    plotitem.amr_patch_bgcolor = ['#ffeeee', '#eeeeff', '#eeffee']
-    plotitem.amr_celledges_show = [1,1,0]   
-    plotitem.amr_patchedges_show = [1]
+    plotitem = plotaxes.new_plotitem(plot_type='1d_from_2d_data')
+
+    def xsec(current_data):
+        # Return x value and surface eta at this point, along y=0
+        from numpy import where
+        x = current_data.x
+        y = current_data.y
+        dx = current_data.dx
+        q = current_data.q
+
+        ij = where((x <= midx + dx/2.) & (x > midx - dx/2.))[0][0]
+        y_slice = y[ij,:]
+        eta_slice = q[1,ij,:]
+        return y_slice, eta_slice
+
+    plotitem.map_2d_to_1d = xsec
+    plotitem.plotstyle = 'kx'     ## need to be able to set amr_plotstyle
+    plotitem.kwargs = {'markersize':3}
+    plotitem.amr_show = [1]  # plot on all levels
 
 
     #-----------------------------------------

@@ -230,7 +230,7 @@ def setrun(claw_pkg='geoclaw'):
     clawdata.bc_upper[0] = 'extrap'
 
     clawdata.bc_lower[1] = 0
-    clawdata.bc_upper[1] = 'extrap'
+    clawdata.bc_upper[1] = 0
 
     # Specify when checkpoint files should be created that can be
     # used to restart a computation.

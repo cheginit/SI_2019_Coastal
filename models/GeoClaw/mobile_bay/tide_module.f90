@@ -17,12 +17,11 @@ module tide_module
 
         if (.not. setup) then
             iunit = 40
-
-            call getenv("WL_INPUT", wl_input)
+            wl_input = '../tide.data'
 
             inquire(file=trim(adjustl(wl_input)), exist=foundFile)
             if (.not. foundFile) then
-              write(*,*) 'Missing water level input file ...'
+              write(*,*) 'Missing water level data file ...'
               write(*,*) 'Looking for ', trim(adjustl(wl_input)),' file'
               stop
             endif

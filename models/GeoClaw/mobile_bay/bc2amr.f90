@@ -90,8 +90,9 @@ subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, time,   &
                   wl_size, time_input, water_level)
 
     use amr_module, only: mthbc, xlower, ylower, xupper, yupper
-    use amr_module, only: xperdom,yperdom,spheredom
+    use amr_module, only: xperdom, yperdom, spheredom
     use tide_module
+    use discharge_module
 
     implicit none
 
@@ -103,10 +104,10 @@ subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, time,   &
     real(kind=8), intent(in out) :: val(meqn, nrow, ncol)
     real(kind=8), intent(in out) :: aux(naux, nrow, ncol)
 
-    ! Input/Output for for tide module
+    ! Input/Output for tide and discharge modules
     integer, intent(in out) :: wl_size
     real(kind=8), dimension (:), allocatable, intent(in out) :: time_input, water_level
-    real(kind=8) :: wl
+    real(kind=8) :: wl, velocity
 
     ! Local storage
     integer :: i, j, ibeg, jbeg, nxl, nxr, nyb, nyt
@@ -243,6 +244,7 @@ subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, time,   &
                         aux(:,i,j) = aux(:, i, nyb + 1)
                     end do
                 end do
+
                 ! Replace this code with a user defined boundary condition
                 ! stop "A user defined boundary condition was not provided."
 
@@ -292,8 +294,18 @@ subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, time,   &
 
         select case(mthbc(4))
             case(0) ! User defined boundary condition
+                call setup_discharge(velocity)
+
+                do j = 1, nyb
+                    do i = 1, nrow
+                        val(1,i,j) = val(1, i, nyb + 1)
+                        val(2,i,j) = val(2, i, nyb + 1)
+                        val(3,i,j) = velocity
+                        aux(:,i,j) = aux(:, i, nyb + 1)
+                    end do
+                end do
                 ! Replace this code with a user defined boundary condition
-                stop "A user defined boundary condition was not provided."
+                ! stop "A user defined boundary condition was not provided."
 
             case(1) ! Zero-order extrapolation
                 do j = jbeg, ncol

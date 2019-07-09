@@ -19,8 +19,6 @@ SETPLOT_FILE = setplot.py      # File containing function to set plots
 PLOTDIR = _plots               # Directory for plots
 
 # Environment variable FC should be set to fortran compiler, e.g. gfortran
-export FC=gfortran
-export WL_INPUT=../data/water_level.bc
 
 # Compiler flags can be specified here or set as an environment variable
 FFLAGS ?= -fopenmp -O3 -march=native -ffast-math -funroll-loops -Wall
@@ -52,7 +50,7 @@ SOURCES = \
   $(CLAW)/riemann/src/rpn2_geoclaw.f \
   $(CLAW)/riemann/src/rpt2_geoclaw.f \
   $(CLAW)/riemann/src/geoclaw_riemann_utils.f \
-  tide_module.f90 bc2amr.f90 \
+  tide_module.f90 discharge_module.f90 bc2amr.f90 \
 
 #-------------------------------------------------------------------
 # Include Makefile containing standard definitions and make options:

@@ -75,9 +75,14 @@ def topo(x, y):
 
 if __name__ == '__main__':
     from bay import Bay
+    import iotool as iot
+
 
     mobile = Bay('trapezoidal', 10e3, 20.0, 0.67, 1.23, -5e3)
 
     tp = MakeTopo(mobile, 'mobile_bay.topotype2')
     tp.topo_type = 2
     tp.generate(topo)
+
+    iot.tide_data('data', 'low')
+    iot.discharge_data('data/discharge.bc', 'low', mobile.r_area)

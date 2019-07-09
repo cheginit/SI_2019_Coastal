@@ -11,7 +11,7 @@ class Bay():
                  y0=0e0,
                  S_o=2e-3,
                  S_b=2e-4,
-                 cell_size=1e3):
+                 cell_size=2e3):
 
         self.shape = shape
         self.x_o1, self.y0, self.z_r = x_o1, y0, z_r
@@ -48,3 +48,5 @@ class Bay():
         self.y_o = self.y0 + self.l_o
         self.y_b = self.y_o + self.l_b
         self.y_r = self.y_b + self.l_r
+
+        self.r_area = (self.x_r2 - self.x_r1) * self.z_r
