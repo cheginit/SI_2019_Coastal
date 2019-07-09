@@ -3,7 +3,7 @@
 objects = tide_module.o main.o
 f90comp = gfortran
 switch = -fopenmp -O3 -march=native -ffast-math -funroll-loops
-WL_INPUT = 'data/water_level.bc'
+export WL_INPUT=../data/water_level.bc
 
 # Makefile
 main: $(objects)

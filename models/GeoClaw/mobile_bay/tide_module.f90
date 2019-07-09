@@ -17,6 +17,7 @@ module tide_module
 
         if (.not. setup) then
             iunit = 40
+
             call getenv("WL_INPUT", wl_input)
 
             inquire(file=trim(adjustl(wl_input)), exist=foundFile)
@@ -111,7 +112,6 @@ module tide_module
 
         real(kind=8) :: dif1
         real(kind=8) :: dif2
-        integer(kind=4) :: i
         integer(kind=4) :: left
         real(kind=8) :: t1
         real(kind=8) :: t2
