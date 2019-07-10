@@ -107,7 +107,7 @@ subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, time,   &
     ! Input/Output for tide and discharge modules
     integer, intent(in out) :: wl_size
     real(kind=8), dimension (:), allocatable, intent(in out) :: time_input, water_level
-    real(kind=8) :: wl, velocity
+    real(kind=8) :: wl, velocity, x_r1, x_r2
 
     ! Local storage
     integer :: i, j, ibeg, jbeg, nxl, nxr, nyb, nyt
@@ -294,14 +294,16 @@ subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, time,   &
 
         select case(mthbc(4))
             case(0) ! User defined boundary condition
-                call setup_discharge(velocity)
+                call setup_discharge(velocity, x_r1, x_r2)
 
-                do j = 1, nyb
+                do j = jbeg, ncol
                     do i = 1, nrow
-                        val(1,i,j) = val(1, i, nyb + 1)
-                        val(2,i,j) = val(2, i, nyb + 1)
-                        val(3,i,j) = velocity
+                        val(:,i,j) = val(:, i, nyb + 1)
                         aux(:,i,j) = aux(:, i, nyb + 1)
+
+                        if (i * hx > x_r1) .and. (i * hx < x_r2) then
+                            val(3,i,j) = velocity
+                        end if
                     end do
                 end do
                 ! Replace this code with a user defined boundary condition

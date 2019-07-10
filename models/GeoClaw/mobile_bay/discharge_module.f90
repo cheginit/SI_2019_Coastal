@@ -5,12 +5,13 @@ module discharge_module
 
     contains
 
-    subroutine setup_discharge(velocity)
-        real(kind=8), intent(in out) :: velocity
+    subroutine setup_discharge(velocity, x_r1, x_r2)
+        real(kind=8), intent(in out) :: velocity, x_r1, x_r2
 
         integer :: iunit, istat
         logical :: foundFile
         character(len=255) :: q_input
+        real(kind=8) :: inputs(1, 3)
 
         if (.not. setup) then
             iunit = 40
@@ -27,7 +28,13 @@ module discharge_module
             open(iunit, file=trim(adjustl(q_input)), status='old', iostat=istat)
 
             rewind(iunit)
-            read(iunit, *, iostat=istat) velocity
+            read(iunit, *, iostat=istat) inputs
+
+            velocity = inputs(1)
+            x_r1 = inputs(2)
+            x_r2 = inputs(3)
+
+            close(unit=iunit, iostat=istat)
 
             setup = .true.
         end if

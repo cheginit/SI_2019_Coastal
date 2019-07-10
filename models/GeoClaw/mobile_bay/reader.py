@@ -38,12 +38,12 @@ def tide_data(data_dir, state):
     return
 
 
-def discharge_data(fname, state, r_width):
+def discharge_data(fname, state, bay):
     config = read_data(fname)
 
     with open('discharge.data', 'w') as f:
         if state == 'low' or state == 'high' or state == 'ref':
-            f.write(str(config[state] / r_width))
+            f.write(f'{config[state] / bay.r_width} {bay.x_r1} {bay.x_r2}')
         else:
             raise ValueError('state can only be low, ref or high')
 
@@ -53,4 +53,4 @@ if __name__ == '__main__':
 
     mobile = Bay('bay.info')
     tide_data('data', 'low')
-    discharge_data('data/discharge.bc', 'low', mobile.r_width)
+    discharge_data('data/discharge.bc', 'low', mobile)
