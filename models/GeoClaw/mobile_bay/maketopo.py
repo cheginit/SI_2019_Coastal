@@ -84,4 +84,4 @@ if __name__ == '__main__':
     tp.generate(topo)
 
     io.tide_data('data', 'low')
-    io.discharge_data('data/discharge.bc', 'low', mobile.r_width)
+    io.discharge_data('data/discharge.bc', 'low', mobile)
