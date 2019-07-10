@@ -10,8 +10,7 @@ class MakeTopo():
     def __init__(self, bay, outfile, topo_type=2):
         self.nxpoints = np.int64(4.0 *
                                  (bay.x_o2 - bay.x_o1) / bay.cell_size) + 1
-        self.nypoints = np.int64(4.0 *
-                                 (bay.y_r - bay.y0) / bay.cell_size) + 1
+        self.nypoints = np.int64(4.0 * (bay.y_r - bay.y0) / bay.cell_size) + 1
         self.xlower = bay.x_o1
         self.ylower = bay.y0
         self.xupper = bay.x_o2
@@ -34,7 +33,8 @@ def topo(x, y):
     from bay import Bay
     z = np.zeros_like(x) + 10
 
-    mobile = Bay('trapezoidal', 10e3, 20.0, 0.67, 1.23, -5e3)
+    mobile = Bay('bay.info')
+
     for i in range(x.shape[0]):
         for j in range(x.shape[1]):
             if x[i, j] >= mobile.x_o1 and \
@@ -75,14 +75,13 @@ def topo(x, y):
 
 if __name__ == '__main__':
     from bay import Bay
-    import iotool as iot
+    import reader as io
 
-
-    mobile = Bay('trapezoidal', 10e3, 20.0, 0.67, 1.23, -5e3)
+    mobile = Bay('bay.info')
 
     tp = MakeTopo(mobile, 'mobile_bay.topotype2')
     tp.topo_type = 2
     tp.generate(topo)
 
-    iot.tide_data('data', 'low')
-    iot.discharge_data('data/discharge.bc', 'low', mobile.r_area)
+    io.tide_data('data', 'low')
+    io.discharge_data('data/discharge.bc', 'low', mobile.r_width)

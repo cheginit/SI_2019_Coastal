@@ -26,7 +26,7 @@ def setplot(plotdata=None):
     from bay import Bay
 
 
-    mobile = Bay('trapezoidal', 10e3, 20.0, 0.67, 1.23, -5e3)
+    mobile = Bay('bay.info')
 
     if plotdata is None:
         from clawpack.visclaw.data import ClawPlotData
@@ -130,38 +130,6 @@ def setplot(plotdata=None):
     plotaxes.afteraxes = add_zeroline
     
     
-    #-----------------------------------------
-    # Figure for cross section
-    #-----------------------------------------
-    plotfigure = plotdata.new_plotfigure(name='cross-section', figno=2)
-
-    # Set up for axes in this figure:
-    plotaxes = plotfigure.new_plotaxes()
-    plotaxes.xlimits = [mobile.y0, mobile.y_r]
-    plotaxes.ylimits = [-1, 1]
-    midx = 0.5 * (mobile.x_o2 - mobile.x_o1)
-    plotaxes.title = 'Cross section at x = ' + str(int(midx))
-
-    plotitem = plotaxes.new_plotitem(plot_type='1d_from_2d_data')
-
-    def xsec(current_data):
-        # Return x value and surface eta at this point, along y=0
-        from numpy import where
-        x = current_data.x
-        y = current_data.y
-        dx = current_data.dx
-        q = current_data.q
-
-        ij = where((x <= midx + dx/2.) & (x > midx - dx/2.))[0][0]
-        y_slice = y[ij,:]
-        eta_slice = q[1,ij,:]
-        return y_slice, eta_slice
-
-    plotitem.map_2d_to_1d = xsec
-    plotitem.plotstyle = 'kx'     ## need to be able to set amr_plotstyle
-    plotitem.kwargs = {'markersize':3}
-    plotitem.amr_show = [1]  # plot on all levels
-
 
     #-----------------------------------------
     

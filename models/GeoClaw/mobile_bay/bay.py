@@ -1,36 +1,29 @@
 class Bay():
-    def __init__(self,
-                 shape,
-                 w_b,
-                 R_br,
-                 R_lb,
-                 R_bt,
-                 z_o,
-                 z_r=-1e3,
-                 x_o1=0e0,
-                 y0=0e0,
-                 S_o=2e-3,
-                 S_b=2e-4,
-                 cell_size=2e3):
+    def __init__(self, info):
+        from reader import read_data
 
-        self.shape = shape
-        self.x_o1, self.y0, self.z_r = x_o1, y0, z_r
-        self.z_o, self.z_r = z_o, z_r
-        self.S_o, self.S_b = S_o, S_b
-        self.w_b = w_b
-        self.R_br, self.R_lb, self.R_bt = R_br, R_lb, R_bt
-        self.cell_size = cell_size
+        config = read_data(info)
+
+        self.shape = config['shape']
+        self.x_o1, self.y0, self.z_r = config['x_o1'], config['y0'], config[
+            'z_r']
+        self.z_o, self.z_r = config['z_o'], config['z_r']
+        self.S_o, self.S_b = config['S_o'], config['S_b']
+        self.w_b = config['w_b']
+        self.R_br, self.R_lb, self.R_bt = config['R_br'], config[
+            'R_lb'], config['R_bt']
+        self.cell_size = config['cell_size']
 
         self.set_params()
 
     def set_params(self):
         self.w_r = self.w_b / self.R_br
         self.w_t = self.w_b / self.R_bt if self.shape == 'trapezoid' else self.w_r
-        self.w_o = 3e0 * self.w_b
+        self.w_o = 5e0 * self.w_b
 
-        self.l_o = 50e3
+        self.l_o = 30e3
         self.l_b = self.R_lb * self.w_b
-        self.l_r = 100e3
+        self.l_r = 50e3
 
         self.z_b = self.z_o + self.S_b * self.l_b
         self.z0 = self.z_o - self.S_o * self.l_o
@@ -44,6 +37,9 @@ class Bay():
 
         self.x_r1 = self.x_b1 + 0.5 * (self.w_b - self.w_r)
         self.x_r2 = self.x_r1 + self.w_r
+
+        self.r_width = self.x_r2 - self.x_r1
+        # self.cell_size = r_width if self.cell_size > r_width else self.cell_size
 
         self.y_o = self.y0 + self.l_o
         self.y_b = self.y_o + self.l_b

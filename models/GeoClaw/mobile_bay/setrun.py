@@ -59,14 +59,12 @@ def setrun(claw_pkg='geoclaw'):
     clawdata.num_dim = num_dim
 
     # Lower and upper edge of computational domain:
-    mobile = Bay('trapezoidal', 10e3, 20.0, 0.67, 1.23, -5e3)
+    mobile = Bay('bay.info')
     clawdata.lower[0] = mobile.x_o1
     clawdata.upper[0] = mobile.x_o2
 
     clawdata.lower[1] = mobile.y0
     clawdata.upper[1] = mobile.y_r
-
-
 
     # Number of grid cells: Coarsest grid
     clawdata.num_cells[0] = int((mobile.x_o2 - mobile.x_o1) / mobile.cell_size)
