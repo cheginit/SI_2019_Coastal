@@ -11,7 +11,7 @@ module discharge_module
         integer :: iunit, istat
         logical :: foundFile
         character(len=255) :: q_input
-        real(kind=8) :: inputs(1, 3)
+        real(kind=8) :: inputs(3)
 
         if (.not. setup) then
             iunit = 40
@@ -28,7 +28,7 @@ module discharge_module
             open(iunit, file=trim(adjustl(q_input)), status='old', iostat=istat)
 
             rewind(iunit)
-            read(iunit, *, iostat=istat) inputs
+            read(iunit, *, iostat=istat) inputs(:)
 
             velocity = inputs(1)
             x_r1 = inputs(2)

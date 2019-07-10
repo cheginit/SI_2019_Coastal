@@ -301,7 +301,7 @@ subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, time,   &
                         val(:,i,j) = val(:, i, nyb + 1)
                         aux(:,i,j) = aux(:, i, nyb + 1)
 
-                        if (i * hx > x_r1) .and. (i * hx < x_r2) then
+                        if((i * hx > x_r1) .and. (i * hx < x_r2))then
                             val(3,i,j) = velocity
                         end if
                     end do
