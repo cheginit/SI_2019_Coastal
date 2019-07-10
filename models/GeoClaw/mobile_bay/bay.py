@@ -39,8 +39,7 @@ class Bay():
         self.x_r2 = self.x_r1 + self.w_r
 
         self.r_width = self.x_r2 - self.x_r1
-        # if self.cell_size > self.r_width:
-        #     self.cell_size = self.r_width
+        self.min_ref = int(self.cell_size / self.r_width * 0.5) + 1
 
         self.y_o = self.y0 + self.l_o
         self.y_b = self.y_o + self.l_b

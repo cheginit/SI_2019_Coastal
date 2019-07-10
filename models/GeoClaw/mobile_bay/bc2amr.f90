@@ -298,10 +298,10 @@ subroutine bc2amr(val,aux,nrow,ncol,meqn,naux, hx, hy, time,   &
 
                 do j = jbeg, ncol
                     do i = 1, nrow
-                        val(:,i,j) = val(:, i, nyb + 1)
-                        aux(:,i,j) = aux(:, i, nyb + 1)
+                        val(:,i,j) = 0.0d0  !val(:, i, nyb + 1)
+                        aux(:,i,j) = 0.0d0  !aux(:, i, nyb + 1)
 
-                        if((i * hx > x_r1) .and. (i * hx < x_r2))then
+                        if(((i-1) * hx > x_r1) .and. ((i+1) * hx < x_r2))then
                             val(3,i,j) = velocity
                         end if
                     end do

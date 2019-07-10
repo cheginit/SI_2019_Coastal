@@ -145,7 +145,7 @@ def setrun(claw_pkg='geoclaw'):
 
     # Initial time step for variable dt.
     # If dt_variable==0 then dt=dt_initial for all steps:
-    clawdata.dt_initial = 0.1
+    clawdata.dt_initial = 0.2
 
     # Max time step to be allowed if variable dt used:
     clawdata.dt_max = 1e+99
@@ -290,8 +290,10 @@ def setrun(claw_pkg='geoclaw'):
 
     # == setregions.data values ==
     regions = rundata.regiondata.regions
-    regions.append(
-        [2, 4, 0, 1e10, mobile.x_r1, mobile.x_r2, mobile.y_b, mobile.y_r])
+    regions.append([
+        mobile.min_ref, mobile.min_ref + 2, 0, 1e10, mobile.x_r1, mobile.x_r2,
+        mobile.y_b, mobile.y_r
+    ])
     # to specify regions of refinement append lines of the form
     #  [minlevel,maxlevel,t1,t2,x1,x2,y1,y2]
 

@@ -54,3 +54,4 @@ if __name__ == '__main__':
     mobile = Bay('bay.info')
     tide_data('data', 'low')
     discharge_data('data/discharge.bc', 'low', mobile)
+    print(mobile.min_ref)
