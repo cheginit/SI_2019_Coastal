@@ -7,35 +7,15 @@ As part of summer institute 2019 held in National Water Center, Coastal Group wo
 
 ## Objectives
 
-Simulation Scenarios:
-- **R**oughness Manning's (-)
-- **D**ischarge (cms)
-- **T**ides: Low Range, High Range, w/Surge
+Identify contributions of relevant physical processes to total water prediction by modeling idealized scenarios in coastal transition zones to provide a framework for efficient forecasting.
 
-| Simulation Name |   R   |   D  |  S  |    T    |            status            |
-|:---------------:|:-----:|:----:|:---:|:-------:|:----------------------------:|
-|     **Ref**     | 0.025 |  300 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
-|       R20       | 0.020 |  300 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
-|       R30       | 0.030 |  300 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
-|       D0        | 0.025 |    0 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
-|      D1000      | 0.025 | 1000 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
-|      D2000      | 0.025 | 2000 |  1  |    L    |   <ul><li>- [x] </li></ul>   |
-|        TH       | 0.025 |  300 |  1  |    H    |   <ul><li>- [ ] </li></ul>   |
-|        TS       | 0.025 |  300 |  1  | w/Surge |   <ul><li>- [x] </li></ul>   |
+## Idealized domains
 
-Domain Parameters:
-- Classes:
-  1) River discharge directly in the ocean
-  2) River discharge in triangular bay
-  3) River discharge in trapezoidal/rectangular bay
+The idealized domains were inspired by rivers and bays geometries over the Gulf and East Coast.
 
-River geometry:
-- **S**inuosity: Curvilinear Length/Straight Line Length
-  A) S = 1
-  B) S > 1
-- **Wr** River width
-
-Bay/Estuary geometry:
+ A few metrics were chosen to compare different rivers and bays and scale the idealized domains.
+ 
+  Bay/Estuary geometry:
 - **Wt** Bay width at river end (upstream) - Wt = Wr in triagular geometry
 - **Wb** Bay width at ocean end (downstream)
 - **Lb** Bay length 
@@ -43,17 +23,54 @@ Bay/Estuary geometry:
   * Rbr = Wb / Wr
   * Rbt = Wb / Wt
   * Rlb = Lb / Wb
+   
+ River geometry:
+- **SI**nuosity = Curvilinear Length / Straight Line Length 
+- **Wr** River width
 
-Barrier Island:
-- Opening length
+Three main **Classes** determined for this analysis:
+  1) River discharge directly in the ocean
+  2) River discharge in triangular bay
+  3) River discharge in trapezoidal/rectangular bay
+  
+For **Class 1**, two subdivisions were created to evaluate river sinuosity contribution in comparison with a straight line river:
+  A) SI = 1
+  B) SI = 1.45
 
-Spit	Bathymetry/Topography	Shipping Channel
+For **Classes 2** and **3**, three subdivisions were created to include the analysis of a barrier island between the bay and the ocean.
+  A) SI = 1
+  B) SI = 1.45
+  C) SI = 1 with barrier island
 
 Idealized models domains
 
 <img src="https://github.com/taataam/SI_2019_Coastal/blob/master/src/Fig_Domains.png" width="600">
 
+## Modeling configuration
+
+A set of scenarios was created to evaluate water levels under tides forcing, storm surge, and discharge and roughness variation.
+
+Simulation Scenarios:
+- **R**oughness Manning's (-)
+- **D**ischarge (cms)
+- **T**ides: **P**redicted, **S**torm Surge
+
+|      | Simulation Name |   R   |   D  |    T    |            status            |
+|:----:|:---------------:|:-----:|:----:|:-------:|:----------------------------:|
+|  S1  |     **Ref**     | 0.025 |    0 |    P    |   <ul><li>- [x] </li></ul>   |
+|  S2  |       R20       | 0.020 |    0 |    P    |   <ul><li>- [x] </li></ul>   |
+|  S3  |       R30       | 0.030 |    0 |    P    |   <ul><li>- [x] </li></ul>   |
+|  S4  |      D1000      | 0.025 | 1000 |    P    |   <ul><li>- [x] </li></ul>   |
+|  S5  |        TS       | 0.025 |    0 |    S    |   <ul><li>- [x] </li></ul>   |
+
+## Results
+
+- Identification of tidal signal in the river upstream for under different geometries and scenarios
+- Identification of river and bay geometry contribution, as well as roughness, discharge, tides and storm surge in total water prediction
+
 ## Deliverable
+
+- Final Report and Presentation
 
 ## Instructions
 The following steps should be taken for using `tide_constituents.py`:
