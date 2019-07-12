@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import xarray as xr
 import pandas as pd
 import numpy as np
@@ -48,7 +49,7 @@ def plot(t):
     ax.set_xlabel('Distance (km)')
     ax.set_ylabel('Water Level (m)')
     ax.legend(loc='upper right')
-    canvas.print_figure(output, format="png", dpi=300);
+    canvas.print_figure(output, format="png", dpi=300)
 
 
 if __name__ == '__main__':

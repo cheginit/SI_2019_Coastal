@@ -1,0 +1,15 @@
+x_o1 = 0 ; x-coordinate of the ocean (west)
+x_o2 = 5e4 ; x-coordinate of the ocean (east)
+x_b1 = 2e4 ; x-coordinate of the bay (west south)
+x_b2 = 3e4 ; x-coordinate of the bay (east south)
+x_b3 = 2e4 ; x-coordinate of the bay (west north)
+x_b4 = 3e4 ; x-coordinate of the bay (east north)
+x_r1 = 2.46e4 ; x-coordinate of the river (west)
+x_r2 = 2.55e4 ; x-coordinate of the river (east)
+x_center = 2.5e4 ; x-coordinate of the center line of the domain
+y0 = 0 ; y-coordinate of the ocean (south)
+y_o = 104.8e3 ; y-coordinate of the ocean (north)
+y_b = 104780 ; y-coordinate of the bay (north)
+y_r = 124980 ; y-coordinate of the river (north)
+label = 'C1 R20 D1000' ; label to appear on the graphs
+class = '1' ; 1 for river, 2 for triangle and 3 for trapezoid

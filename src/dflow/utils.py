@@ -1,3 +1,27 @@
+def read_data(fname):
+    from pathlib import Path
+    from numpy import float64 as float
+
+    if Path(fname).exists():
+        with open(fname) as f:
+            inputs = list(f)
+        keys = [f.strip().partition(';')[0].split('=')[0].strip()
+                for f in inputs]
+        values = [f.strip().partition(';')[0].split('=')[1].strip()
+                  for f in inputs]
+        for i in range(len(values)):
+            try:
+                values[i] = float(values[i])
+            except ValueError:
+                continue
+
+        config = dict(zip(keys, values))
+    else:
+        raise FileNotFoundError(f'info file was not found: {fname}')
+
+    return config
+
+
 def make_canvas(width, height, nx=1, ny=1):
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -52,14 +76,48 @@ def latexify(fig_width=None, fig_height=None, columns=1):
 
     params = {'backend': 'ps',
               'text.latex.preamble': ['\\usepackage{gensymb}', '\\usepackage{mathtools}'],
-              'axes.labelsize': 10, # fontsize for x and y labels (was 10)
-              'axes.titlesize': 10,
-              'font.size': 10, # was 10
-              'xtick.labelsize': 10,
-              'ytick.labelsize': 10,
+              'axes.labelsize': 11, # fontsize for x and y labels (was 10)
+              'axes.titlesize': 11,
+              'font.size': 11,
+              'xtick.labelsize': 11,
+              'ytick.labelsize': 11,
               'text.usetex': True,
               'figure.figsize': [fig_width,fig_height],
               'font.family': 'serif'
     }
 
     matplotlib.rcParams.update(params)
+
+
+def animation(func, frames, clip_name):
+    import time as dt
+    import subprocess
+    import multiprocessing
+    from pathlib import Path
+    import os
+
+    print('Plotting in parallel ...')
+    starttime = dt.time()
+    pool = multiprocessing.Pool()
+    pool.map(func, frames)
+    pool.close()
+    print(f'Plotting finished after {dt.time() - starttime:.1f} seconds')
+
+    print('Making animation from the plots ...')
+    if not Path('images').exists():
+        Path('images').mkdir()
+
+    output_loc = Path('images', 'frame_%03d.png')
+
+    p = subprocess.Popen(['ffmpeg',
+                          '-framerate',
+                          '15',
+                          '-hide_banner',
+                          '-loglevel', 'panic',
+                          '-y',
+                          '-i', output_loc,
+                          f'{clip_name}.mp4'])
+    p.communicate()
+    for f in list(Path('images').glob('*.png')):
+        os.remove(f)
+    print('Completed successfully')
