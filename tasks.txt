@@ -1,7 +1,7 @@
 Task, Starting Date, Duration (days), Completion Percentage
 Paper review and presentation, 2019-07-21, 4, 0
 Report and Peer-review, 2019-07-12, 9, 0
-Models Preparation/Run/Analysis, 2019-06-27, 20, 40
+Models Preparation/Run/Analysis, 2019-06-27, 20, 90
 Coastal Zones Classification, 2019-06-24, 7, 100
 Project Planning, 2019-06-17, 7, 100
 Training, 2019-06-10, 14, 100
