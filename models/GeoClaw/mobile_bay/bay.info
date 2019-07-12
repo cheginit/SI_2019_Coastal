@@ -1,6 +1,6 @@
 shape = trapezoid
 w_b = 10e3
-R_br = 20
+R_br = 5
 R_lb = 0.67
 R_bt = 1.23
 z_o = -5

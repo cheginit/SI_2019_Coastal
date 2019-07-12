@@ -14,7 +14,7 @@ def read_data(fname):
                 pass
         config = dict(zip(keys, values))
     else:
-        raise FileNotFoundError(f'info file was not found: {str(fname)}')
+        raise FileNotFoundError(f'info file was not found: {fname}')
 
     return config
 
