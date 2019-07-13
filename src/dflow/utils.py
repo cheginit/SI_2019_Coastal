@@ -96,22 +96,25 @@ def animation(func, frames, clip_name):
     from pathlib import Path
     import os
 
-    print('Plotting in parallel ...')
-    starttime = dt.time()
-    pool = multiprocessing.Pool()
-    pool.map(func, frames)
-    pool.close()
-    print(f'Plotting finished after {dt.time() - starttime:.1f} seconds')
-
-    print('Making animation (mp4 and gif) from the plots ...')
     if not Path('images').exists():
         Path('images').mkdir()
+    if not Path('videos').exists():
+        Path('videos').mkdir()
 
-    output_loc = Path('images', 'frame_%03d.png')
+    starttime = dt.time()
+    pool = multiprocessing.Pool()
+    print(f'Plotting in parallel with {pool._processes} processors ...')
+
+    pool.map(func, frames)
+    pool.close()
+
+    print(f'Plotting finished after {dt.time() - starttime:.1f} seconds')
+
+    print('Making a video from the plots ...')
 
     p = subprocess.Popen(['ffmpeg',
                           '-framerate', '15',
-                          '-i', output_loc,
+                          '-i', Path('images', 'frame_%03d.png'),
                           '-c:v', 'libx264',
                           '-preset', 'slow',
                           '-profile:v', 'high',
@@ -121,15 +124,17 @@ def animation(func, frames, clip_name):
                           '-hide_banner',
                           '-loglevel', 'panic',
                           '-y',
-                          f'{clip_name}.mp4'])
+                          Path('videos', f'{clip_name}.mp4')])
     p.communicate()
     
+    print('Making a gif from the plots ...')
+
     p = subprocess.Popen(['convert',
                           '-delay', '10',
                           '-resize', '30%',
                           '-quiet',
                           Path('images', '*.png'),
-                          f'{clip_name}.gif'])
+                          Path('videos', f'{clip_name}.gif')])
     p.communicate()
 
     for f in list(Path('images').glob('*.png')):
