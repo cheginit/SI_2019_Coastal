@@ -14,7 +14,7 @@ fname = argv[1:]
 label = [Path(f).parent.name.replace('_', ' ') for f in fname]
 res = [xr.open_dataset(f) for f in fname]
 
-nx, ny = res[0].variables['mesh2d_face_x'], res[0].variables['mesh2d_face_y']*1e-3
+nx, ny = res[0].variables['mesh2d_face_x'], res[0].variables['mesh2d_face_y']
 time = pd.to_datetime(res[0].variables['time'].values)
 wd = [r.variables['mesh2d_s1'] for r in res]
 
@@ -49,6 +49,7 @@ def plot(t):
     ax.set_xlabel('Distance (km)')
     ax.set_ylabel('Water Level (m)')
     ax.legend(loc='upper right')
+    ax.ticklabel_format(style='sci', axis='y', scilimits=(3,3))
     canvas.print_figure(output, format="png", dpi=300)
 
 

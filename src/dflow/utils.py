@@ -27,7 +27,7 @@ def make_canvas(width, height, nx=1, ny=1):
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     import matplotlib.gridspec as gridspec
 
-    latexify(width, height)
+    # latexify(width, height)
     fig = Figure(figsize=(width, height), frameon=True)
     canvas = FigureCanvas(fig)
     gs = gridspec.GridSpec(nx, ny,
@@ -103,21 +103,36 @@ def animation(func, frames, clip_name):
     pool.close()
     print(f'Plotting finished after {dt.time() - starttime:.1f} seconds')
 
-    print('Making animation from the plots ...')
+    print('Making animation (mp4 and gif) from the plots ...')
     if not Path('images').exists():
         Path('images').mkdir()
 
     output_loc = Path('images', 'frame_%03d.png')
 
     p = subprocess.Popen(['ffmpeg',
-                          '-framerate',
-                          '15',
+                          '-framerate', '15',
+                          '-c:v', 'libx264',
+                          '-preset', 'slow',
+                          '-profile:v', 'high',
+                          '-level:v', '4.0',
+                          '-pix_fmt', 'yuv420p',
+                          '-crf', '22',
                           '-hide_banner',
                           '-loglevel', 'panic',
                           '-y',
                           '-i', output_loc,
                           f'{clip_name}.mp4'])
     p.communicate()
+    
+    p = subprocess.Popen(['convert',
+                          '-delay', '10',
+                          '-resize', '30%',
+                          '-quiet',
+                          Path('images', '*.png'),
+                          f'{clip_name}.gif'])
+    p.communicate()
+
     for f in list(Path('images').glob('*.png')):
         os.remove(f)
+
     print('Completed successfully')

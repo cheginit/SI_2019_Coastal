@@ -31,6 +31,7 @@ def plot(t):
     ax.set_title(inp['label'].strip())
     ax.set_xlim(nx.min(), nx.max())
     ax.set_ylim(ny.min(), ny.max())
+    ax.ticklabel_format(style='sci', scilimits=(3,3))
     fig.colorbar(tcf, norm=norm, ax=ax, use_gridspec=True, extend=[vmin, vmax])
     canvas.print_figure(output, format="png", dpi=300)
 
@@ -46,14 +47,13 @@ for d in dirname:
     res_list.append(xr.open_dataset(fname[0]))
     inp_list.append(utils.read_data(fname[1]))
 
+vmax = np.array([np.ceil(abs(res.mesh2d_s1.values.max())) for res in res_list]).max()
+vmin = -vmax
 itr = 0
 
 for res, inp in zip(res_list, inp_list):
     nx, ny = res.mesh2d_face_x.values, res.mesh2d_face_y.values
     wd = res.mesh2d_s1
-
-    vmax = np.ceil(abs(wd.values.max()))
-    vmin = -vmax
 
     norm = cm.colors.Normalize(vmax=vmax, vmin=vmin)
     cmap = cm.PRGn
