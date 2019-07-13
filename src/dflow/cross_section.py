@@ -32,7 +32,7 @@ def plot(t):
     ax.set_xlabel('Distance (m)')
     ax.set_ylabel('Water Level (m)')
     ax.legend(loc='upper right')
-    ax.ticklabel_format(style='sci', scilimits=(3,3))
+    ax.ticklabel_format(style='sci', axis='x', scilimits=(3,3))
     canvas.print_figure(output, format="png", dpi=300)
 
 
