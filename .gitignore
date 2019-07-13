@@ -454,3 +454,6 @@ TSWLatexianTemp*
 # standalone packages
 *.sta
 
+# temporary folders
+images/
+videos/
