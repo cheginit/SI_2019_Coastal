@@ -111,6 +111,7 @@ def animation(func, frames, clip_name):
 
     p = subprocess.Popen(['ffmpeg',
                           '-framerate', '15',
+                          '-i', output_loc,
                           '-c:v', 'libx264',
                           '-preset', 'slow',
                           '-profile:v', 'high',
@@ -120,7 +121,6 @@ def animation(func, frames, clip_name):
                           '-hide_banner',
                           '-loglevel', 'panic',
                           '-y',
-                          '-i', output_loc,
                           f'{clip_name}.mp4'])
     p.communicate()
     
