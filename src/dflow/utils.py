@@ -89,7 +89,7 @@ def latexify(fig_width=None, fig_height=None, columns=1):
     matplotlib.rcParams.update(params)
 
 
-def animation(func, frames, clip_name):
+def animation(func, frames, clip_name, video=True, gif=False, clean_up=True):
     import time as dt
     import subprocess
     import multiprocessing
@@ -110,34 +110,37 @@ def animation(func, frames, clip_name):
 
     print(f'Plotting finished after {dt.time() - starttime:.1f} seconds')
 
-    print('Making a video from the plots ...')
+    if video:
+        print('Making a video from the plots ...')
 
-    p = subprocess.Popen(['ffmpeg',
-                          '-framerate', '15',
-                          '-i', Path('images', 'frame_%03d.png'),
-                          '-c:v', 'libx264',
-                          '-preset', 'slow',
-                          '-profile:v', 'high',
-                          '-level:v', '4.0',
-                          '-pix_fmt', 'yuv420p',
-                          '-crf', '22',
-                          '-hide_banner',
-                          '-loglevel', 'panic',
-                          '-y',
-                          Path('videos', f'{clip_name}.mp4')])
-    p.communicate()
-    
-    print('Making a gif from the plots ...')
+        p = subprocess.Popen(['ffmpeg',
+                              '-framerate', '15',
+                              '-i', Path('images', 'frame_%03d.png'),
+                              '-c:v', 'libx264',
+                              '-preset', 'slow',
+                              '-profile:v', 'high',
+                              '-level:v', '4.0',
+                              '-pix_fmt', 'yuv420p',
+                              '-crf', '22',
+                              '-hide_banner',
+                              '-loglevel', 'panic',
+                              '-y',
+                              Path('videos', f'{clip_name}.mp4')])
+        p.communicate()
 
-    p = subprocess.Popen(['convert',
-                          '-delay', '10',
-                          '-resize', '30%',
-                          '-quiet',
-                          Path('images', '*.png'),
-                          Path('videos', f'{clip_name}.gif')])
-    p.communicate()
+    if gif:
+        print('Making a gif from the plots ...')
 
-    for f in list(Path('images').glob('*.png')):
-        os.remove(f)
+        p = subprocess.Popen(['convert',
+                              '-delay', '10',
+                              '-resize', '30%',
+                              '-quiet',
+                              Path('images', '*.png'),
+                              Path('videos', f'{clip_name}.gif')])
+        p.communicate()
+
+    if clean_up:
+        for f in list(Path('images').glob('*.png')):
+            os.remove(f)
 
     print('Completed successfully')
