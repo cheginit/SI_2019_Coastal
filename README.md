@@ -73,6 +73,18 @@ Simulation Scenarios:
 - Final Report and Presentation
 
 ## Instructions
+The following steps should be taken for using the plotting scripts:
+1. Install docker.
+2. Change directory to `src/docker` and create an image from the `Dockerfile`:
+```bash
+docker build -t plot .
+```
+3. Copy the plotting scripts to the folder that contains the D-Flow outputs and run one of the script e.g., `cross_section.py`, as follows:
+```bash
+docker run -v "$PWD":/home/plot plot python cross_section.py C2_A1_S1_R25_D0_TPG
+```
+
+
 The following steps should be taken for using `tide_constituents.py`:
 1. Install Anaconda and load it in a command line.
 2. Run the following command to create a new environment called `tides`:
@@ -91,6 +103,7 @@ git clone -b py3 https://github.com/taataam/tappy.git
 cd tappy
 python setup.py install
 ```
+
 
 An example showing how to use the code is provided in `src/tide_constituents/mobile_bay.py`
 
