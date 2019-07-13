@@ -114,7 +114,7 @@ def animation(func, frames, clip_name, video=True, gif=False, clean_up=True):
         print('Making a video from the plots ...')
 
         p = subprocess.Popen(['ffmpeg',
-                              '-framerate', '15',
+                              '-framerate', '12',
                               '-i', Path('images', 'frame_%03d.png'),
                               '-c:v', 'libx264',
                               '-preset', 'slow',
