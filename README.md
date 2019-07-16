@@ -62,9 +62,9 @@ Simulation Scenarios:
 |  S3  |       R30       | 0.030 |    0 |    P    |   <ul><li>- [x] </li></ul>   |
 |  S4  |      D1000      | 0.025 | 1000 |    P    |   <ul><li>- [x] </li></ul>   |
 |  S5  |        TS       | 0.025 |    0 |    S    |   <ul><li>- [x] </li></ul>   |
-|  S6  |        TS       | 0.025 |  100 |    P    |   <ul><li>- [x] </li></ul>   |
-|  S7  |        TS       | 0.025 |  200 |    P    |   <ul><li>- [x] </li></ul>   |
-|  S8  |        TS       | 0.025 |  500 |    P    |   <ul><li>- [x] </li></ul>   |
+|  S6  |       D100      | 0.025 |  100 |    P    |   <ul><li>- [x] </li></ul>   |
+|  S7  |       D200      | 0.025 |  200 |    P    |   <ul><li>- [x] </li></ul>   |
+|  S8  |       D500      | 0.025 |  500 |    P    |   <ul><li>- [x] </li></ul>   |
 
 ## Results
 
