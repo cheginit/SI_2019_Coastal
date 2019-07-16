@@ -31,9 +31,9 @@ if len(res) > 0 and len(inp) > 0:
     water_level.animate()
 
 res, inp = list(itertools.compress(res_list, cs_idx)), list(itertools.compress(inp_list, cs_idx))
-if len(res) > 0 and len(inp) > 0:
-    cross_section = vis.CrossSection(res, inp)
-    cross_section.animate()
+#if len(res) > 0 and len(inp) > 0:
+#    cross_section = vis.CrossSection(res, inp)
+#    cross_section.animate()
 
 res, inp = list(itertools.compress(res_list, tc_idx)), list(itertools.compress(inp_list, tc_idx))
 if len(res) > 0 and len(inp) > 0:

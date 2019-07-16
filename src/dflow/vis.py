@@ -176,10 +176,15 @@ class WaterSurface():
 class TidalConstituents():
     def __init__(self, res_list, inp_list):
         from datetime import datetime
+        import pandas as pd
         import analysis
 
         self.res_list = res_list
         self.inp_list = inp_list
+
+        self.dates = res_list[0].time.values.astype(int) * 1e-9
+        self.dates = np.array([datetime.utcfromtimestamp(t) for t in self.dates])
+
         self.nx = self.res_list[0].mesh2d_face_x.values
         self.ny = self.res_list[0].mesh2d_face_y.values
         self.center = np.where((self.nx > self.inp_list[0]['x_center'] - 300) &
@@ -188,12 +193,26 @@ class TidalConstituents():
                                   (self.ny < self.inp_list[0]['y_mouth']))[0]
         self.mouth_idx = np.intersect1d(self.center, self.mouth_idx)
 
+        if not Path('data').exists():
+            Path('data').mkdir()
+
+        for i in range(len(inp_list)):
+            if not inp_list[i]['class'] == 1:
+                bay_idx = np.where((self.ny > self.inp_list[0]['y_b'] - 500) &
+                                        (self.ny < self.inp_list[0]['y_b']))[0]
+                bay_idx = np.intersect1d(self.center, bay_idx)
+                uy_bay = np.array([u[bay_idx].values[0] for u in res_list[i].mesh2d_ucy])
+                el_bay = np.array([w[bay_idx].values[0] for w in res_list[i].mesh2d_s1])
+                
+                df = pd.DataFrame(columns=['date', 'water level', 'velocity'])
+                df['date'] = self.dates
+                df['water level'] = el_bay
+                df['velocity'] = uy_bay
+                df.to_csv(Path('data', f'bay_{inp_list[i]["label"].replace(" ", "_")}.csv'), index=False)
+
         self.ny_center = self.ny[self.center[::4]]
         self.idx_sort = np.argsort(self.ny_center)[::-1]
         self.ny_center = self.ny_center[self.idx_sort]
-
-        self.dates = res_list[0].time.values.astype(int) * 1e-9
-        self.dates = np.array([datetime.utcfromtimestamp(t) for t in self.dates])
 
         wl_list = [res.mesh2d_s1 for res in res_list]
         self.elv_mouth, self.wd_center, self.elvs_list = [], [], []
@@ -208,6 +227,26 @@ class TidalConstituents():
         self.amps_list, self.phases_list = analysis.decompose(self.dates, self.elvs_list)
 
         self.labels = [inp['label'] for inp in self.inp_list]
+
+        df = pd.DataFrame(columns=['date', 'water level', 'velocity'])
+        itr = 0
+        for label in self.labels:
+            df['date'] = self.dates
+            df['water level'] = self.elv_mouth[itr]
+            df['velocity'] = self.uy_mouth[itr]
+            df.to_csv(Path('data', f'mouth_{label.replace(" ", "_")}.csv'), index=False)
+            itr += 1
+
+        df = pd.DataFrame(columns=['distance', 'M2 amp', 'M2 phase', 'M4 amp', 'M4 phase'])
+        itr = 0
+        for label in self.labels:
+            df['distance'] = self.ny_center
+            df['M2 amp'] = self.amps_list[itr][0][self.idx_sort]
+            df['M2 phase'] = self.phases_list[itr][0][self.idx_sort]
+            df['M4 amp'] = self.amps_list[itr][1][self.idx_sort]
+            df['M4 phase'] = self.phases_list[itr][1][self.idx_sort]
+            df.to_csv(Path('data', f'tide_{label.replace(" ", "_")}.csv'), index=False)
+            itr += 1
 
     def plot_constituents(self):
         import matplotlib.colors as mcolors
@@ -247,6 +286,7 @@ class TidalConstituents():
         
         print("River's mouth visualization ...")
         output = Path('images', 'mouth.png')
+
         if output.exists():
             return
 
