@@ -1,7 +1,6 @@
 def tide_constituents(dates, elevation):
     from tappy import tappy
 
-
     quiet = True
     debug = False
     outputts = False
@@ -21,8 +20,8 @@ def tide_constituents(dates, elevation):
         ray = float(rayleigh)
 
     x = tappy.tappy(
-        outputts = outputts,
-        outputxml = outputxml,
+        outputts=outputts,
+        outputxml=outputxml,
         quiet=quiet,
         debug=debug,
         ephemeris=ephemeris,
@@ -35,23 +34,24 @@ def tide_constituents(dates, elevation):
         filter=filter,
         pad_filters=pad_filters,
         include_inferred=include_inferred,
-        )
+    )
 
     x.dates = dates
     x.elevation = elevation
     package = x.astronomic(x.dates)
-    (x.zeta, x.nu, x.nup, x.nupp, x.kap_p, x.ii, x.R, x.Q, x.T, x.jd, x.s, x.h, x.N, x.p, x.p1) = package
+    (x.zeta, x.nu, x.nup, x.nupp, x.kap_p, x.ii, x.R, x.Q, x.T, x.jd, x.s, x.h,
+     x.N, x.p, x.p1) = package
     (x.speed_dict, x.key_list) = x.which_constituents(len(x.dates),
-            package, rayleigh_comp=ray)
+                                                      package,
+                                                      rayleigh_comp=ray)
 
     # the analysis
     x.constituents()
-    
+
     return x
 
 
 def _decompose(dates, elvs_list):
-    import numpy as np
     from tqdm import tqdm
 
     amps_list, phases_list = [], []
@@ -68,7 +68,10 @@ def decompose(dates, elvs_list):
     import numpy as np
 
     pool = multiprocessing.Pool()
-    print(f'Computing the tidal constituents in parallel with {pool._processes} processors ...')
+    print(
+        f'Computing the tidal constituents in parallel with ' +
+        '{pool._processes} processors ...'
+    )
     decompose_el = partial(_decompose, dates)
     tide_list = pool.map(decompose_el, elvs_list)
     pool.close()

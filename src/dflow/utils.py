@@ -3,8 +3,9 @@ def read_data(fname):
     from numpy import float64 as float
 
     if Path(fname).exists():
-        with open(fname) as f:
-            inputs = list(f)
+        with open(fname, 'r') as f:
+            inputs = filter(None, (line.rstrip() for line in f))
+            inputs = [line for line in inputs if not line.lstrip()[0] == '#']
         keys = [
             f.strip().partition(';')[0].split('=')[0].strip() for f in inputs
         ]

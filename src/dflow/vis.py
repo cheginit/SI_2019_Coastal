@@ -2,7 +2,6 @@
 
 import numpy as np
 from pathlib import Path
-from sys import argv
 import utils
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
@@ -14,18 +13,25 @@ class CrossSection():
         self.inp_list = inp_list
         self.nx = self.res_list[0].mesh2d_face_x.values
         self.ny = self.res_list[0].mesh2d_face_y.values
-        self.center = np.where((self.nx > self.inp_list[0]['x_center'] - 300) &
-                               (self.nx < self.inp_list[0]['x_center']))
+        self.center = np.where((self.nx > self.inp_list[0]['x_center'] - 300)
+                               & (self.nx < self.inp_list[0]['x_center']))
         self.ny_center = self.ny[self.center]
         self.idx_sort = np.argsort(self.ny_center)[::-1]
         self.ny_center = self.ny_center[self.idx_sort]
-        self.wd_center = [res.mesh2d_s1.values[:, self.center] for res in self.res_list]
+        self.wd_center = [
+            res.mesh2d_s1.values[:, self.center] for res in self.res_list
+        ]
 
-        self.ymax = np.array([np.absolute(res.mesh2d_s1.values).max() * 1.1
-                              for res in self.res_list]).max()
+        self.ymax = np.array([
+            np.absolute(res.mesh2d_s1.values).max() * 1.1
+            for res in self.res_list
+        ]).max()
         self.ymin = -self.ymax
 
         self.labels = [inp['label'] for inp in self.inp_list]
+        self.title = [inp['title'] for inp in self.inp_list]
+        if "Ref" in self.title:
+            self.title.remove("Ref")
 
     def animate(self):
         print("Cross section visualization ...")
@@ -47,7 +53,10 @@ class CrossSection():
         for w, l, c in zip(self.wd_center, self.labels, colors):
             ax.plot(self.ny_center, w[t][0][self.idx_sort], label=f'{l}', c=c)
 
-        ax.set_title('Cross-section across the middle of the domain (y-direction)')
+        ax.set_title(
+            f'{self.title[0]} study; cross-section across the middle of the '+
+            'domain (y-direction)'
+        )
         ax.set_xlim(self.ny_center.min(), self.ny_center.max())
         ax.set_ylim(self.ymin, self.ymax)
         ax.set_xlabel('Distance (m)')
@@ -61,9 +70,14 @@ class WaterSurface():
     def __init__(self, res_list, inp_list):
         self.res_list = res_list
         self.inp_list = inp_list
-        self.vmax = np.array([np.absolute(res.mesh2d_s1.values).max() * 1.1
-                              for res in self.res_list]).max()
+        self.vmax = np.array([
+            np.absolute(res.mesh2d_s1.values).max() * 1.1
+            for res in self.res_list
+        ]).max()
         self.vmin = -self.vmax
+        self.title = [inp['title'] for inp in self.inp_list]
+        if "Ref" in self.title:
+            self.title.remove("Ref")
 
     def animate(self):
         from matplotlib import tri, cm
@@ -72,8 +86,10 @@ class WaterSurface():
         print("Water surface visualization ...")
         itr = 0
 
-        for res, inp in tqdm(zip(self.res_list, self.inp_list), total=len(self.res_list)):
-            self.nx, self.ny = res.mesh2d_face_x.values, res.mesh2d_face_y.values
+        for res, inp in tqdm(zip(self.res_list, self.inp_list),
+                             total=len(self.res_list)):
+            self.nx = res.mesh2d_face_x.values
+            self.ny = res.mesh2d_face_y.values
             self.wd = res.mesh2d_s1
 
             self.norm = cm.colors.Normalize(vmax=self.vmax, vmin=self.vmin)
@@ -87,36 +103,38 @@ class WaterSurface():
             m = []
             if inp['class'] == 1:
                 m.append(
-                    np.where((x > inp['x_o1']) & (x < inp['x_r1']) & (y > inp['y_o']),
-                             1, 0))
+                    np.where((x > inp['x_o1']) & (x < inp['x_r1']) &
+                             (y > inp['y_o']), 1, 0))
                 m.append(
-                    np.where((x > inp['x_r2']) & (x < inp['x_o2']) & (y > inp['y_o']),
-                             1, 0))
+                    np.where((x > inp['x_r2']) & (x < inp['x_o2']) &
+                             (y > inp['y_o']), 1, 0))
             else:
                 if (inp['x_b3'] - inp['x_b1']) < 1e-2:
                     s_w, s_e = 0e0, 0e0
                 else:
-                    s_w = (inp['y_r'] - inp['y_b']) / (inp['x_b3'] - inp['x_b1'])
-                    s_e = (inp['y_r'] - inp['y_b']) / (inp['x_b4'] - inp['x_b2'])
+                    s_w = (inp['y_r'] - inp['y_b']) / (inp['x_b3'] -
+                                                       inp['x_b1'])
+                    s_e = (inp['y_r'] - inp['y_b']) / (inp['x_b4'] -
+                                                       inp['x_b2'])
 
                 m.append(
-                    np.where((x > inp['x_o1']) & (x < inp['x_b1']) & (y > inp['y_o']),
-                             1, 0))
+                    np.where((x > inp['x_o1']) & (x < inp['x_b1']) &
+                             (y > inp['y_o']), 1, 0))
                 m.append(
-                    np.where((x > inp['x_b2']) & (x < inp['x_o2']) & (y > inp['y_o']),
-                             1, 0))
+                    np.where((x > inp['x_b2']) & (x < inp['x_o2']) &
+                             (y > inp['y_o']), 1, 0))
                 m.append(
-                    np.where((x > inp['x_b1']) & (x < inp['x_b3']) & (y > inp['y_b']),
-                             1, 0))
+                    np.where((x > inp['x_b1']) & (x < inp['x_b3']) &
+                             (y > inp['y_b']), 1, 0))
                 m.append(
-                    np.where((x > inp['x_b4']) & (x < inp['x_b2']) & (y > inp['y_b']),
-                             1, 0))
+                    np.where((x > inp['x_b4']) & (x < inp['x_b2']) &
+                             (y > inp['y_b']), 1, 0))
                 m.append(
-                    np.where((x > inp['x_b3']) & (x < inp['x_r1']) & (y > inp['y_b']),
-                             1, 0))
+                    np.where((x > inp['x_b3']) & (x < inp['x_r1']) &
+                             (y > inp['y_b']), 1, 0))
                 m.append(
-                    np.where((x > inp['x_r2']) & (x < inp['x_b4']) & (y > inp['y_b']),
-                             1, 0))
+                    np.where((x > inp['x_r2']) & (x < inp['x_b4']) &
+                             (y > inp['y_b']), 1, 0))
                 m.append(
                     np.where((x > inp['x_b1']) & (x < inp['x_b3']) &
                              (y > inp['y_b'] + s_w * (x - inp['x_b1'])), 1, 0))
@@ -137,7 +155,8 @@ class WaterSurface():
             if itr > 0:
                 self.wd = self.res_list[0].mesh2d_s1 - self.wd
                 self.label = 'RDiff ' + self.label
-                utils.animation(self.plot_func, range(0, self.wd.time.shape[0], 1),
+                utils.animation(self.plot_func,
+                                range(0, self.wd.time.shape[0], 1),
                                 self.label.replace(' ', ''))
             itr = +1
 
@@ -153,7 +172,8 @@ class WaterSurface():
         ax = fig.add_subplot(gs[0])
 
         wdt = griddata((self.nx, self.ny),
-                       self.wd.isel(time=t).values, (self.triang.x, self.triang.y),
+                       self.wd.isel(time=t).values,
+                       (self.triang.x, self.triang.y),
                        method='linear')
 
         tcf = ax.tricontourf(self.triang,
@@ -164,11 +184,16 @@ class WaterSurface():
                              norm=self.norm)
         ax.tricontour(self.triang, wdt, tcf.levels, colors='k')
 
-        ax.set_title(self.label.strip())
+        ax.set_title(
+            f'{self.title[0]} study; water level contours for {self.label.strip()}'
+        )
         ax.set_xlim(self.nx.min(), self.nx.max())
         ax.set_ylim(self.ny.min(), self.ny.max())
         ax.ticklabel_format(style='sci', scilimits=(3, 3))
-        fig.colorbar(tcf, norm=self.norm, ax=ax, use_gridspec=True,
+        fig.colorbar(tcf,
+                     norm=self.norm,
+                     ax=ax,
+                     use_gridspec=True,
                      extend=[self.vmin, self.vmax])
         canvas.print_figure(output, format="png", dpi=300)
 
@@ -181,16 +206,19 @@ class TidalConstituents():
 
         self.res_list = res_list
         self.inp_list = inp_list
+        self.title = [inp['title'] for inp in self.inp_list]
+        if "Ref" in self.title: self.title.remove("Ref")
 
         self.dates = res_list[0].time.values.astype(int) * 1e-9
-        self.dates = np.array([datetime.utcfromtimestamp(t) for t in self.dates])
+        self.dates = np.array(
+            [datetime.utcfromtimestamp(t) for t in self.dates])
 
         self.nx = self.res_list[0].mesh2d_face_x.values
         self.ny = self.res_list[0].mesh2d_face_y.values
-        self.center = np.where((self.nx > self.inp_list[0]['x_center'] - 300) &
-                               (self.nx < self.inp_list[0]['x_center']))[0]
-        self.mouth_idx = np.where((self.ny > self.inp_list[0]['y_mouth'] - 500) &
-                                  (self.ny < self.inp_list[0]['y_mouth']))[0]
+        self.center = np.where((self.nx > self.inp_list[0]['x_center'] - 300)
+                               & (self.nx < self.inp_list[0]['x_center']))[0]
+        self.mouth_idx = np.where((self.ny > self.inp_list[0]['y_mouth'] - 500)
+                                  & (self.ny < self.inp_list[0]['y_mouth']))[0]
         self.mouth_idx = np.intersect1d(self.center, self.mouth_idx)
 
         if not Path('data').exists():
@@ -198,17 +226,22 @@ class TidalConstituents():
 
         for i in range(len(inp_list)):
             if not inp_list[i]['class'] == 1:
-                bay_idx = np.where((self.ny > self.inp_list[0]['y_b'] - 500) &
-                                        (self.ny < self.inp_list[0]['y_b']))[0]
+                bay_idx = np.where((self.ny > self.inp_list[0]['y_b'] - 500)
+                                   & (self.ny < self.inp_list[0]['y_b']))[0]
                 bay_idx = np.intersect1d(self.center, bay_idx)
-                uy_bay = np.array([u[bay_idx].values[0] for u in res_list[i].mesh2d_ucy])
-                el_bay = np.array([w[bay_idx].values[0] for w in res_list[i].mesh2d_s1])
-                
+                uy_bay = np.array(
+                    [u[bay_idx].values[0] for u in res_list[i].mesh2d_ucy])
+                el_bay = np.array(
+                    [w[bay_idx].values[0] for w in res_list[i].mesh2d_s1])
+
                 df = pd.DataFrame(columns=['date', 'water level', 'velocity'])
                 df['date'] = self.dates
                 df['water level'] = el_bay
                 df['velocity'] = uy_bay
-                df.to_csv(Path('data', f'bay_{inp_list[i]["label"].replace(" ", "_")}.csv'), index=False)
+                df.to_csv(Path(
+                    'data',
+                    f'bay_{inp_list[i]["label"].replace(" ", "_")}.csv'),
+                          index=False)
 
         self.ny_center = self.ny[self.center[::4]]
         self.idx_sort = np.argsort(self.ny_center)[::-1]
@@ -217,14 +250,23 @@ class TidalConstituents():
         wl_list = [res.mesh2d_s1 for res in res_list]
         self.elv_mouth, self.wd_center, self.elvs_list = [], [], []
         for wl in wl_list:
-            self.elv_mouth.append(np.array([w[self.mouth_idx].values[0] for w in wl]))
+            self.elv_mouth.append(
+                np.array([w[self.mouth_idx].values[0] for w in wl]))
             self.wd_center.append(wl.values[:, self.center])
-            self.elvs_list.append(np.column_stack([wl.isel(time=t)[self.center[::4]].values for t in range(wl_list[0].time.shape[0])]))
+            self.elvs_list.append(
+                np.column_stack([
+                    wl.isel(time=t)[self.center[::4]].values
+                    for t in range(wl_list[0].time.shape[0])
+                ]))
 
         uy_list = [res.mesh2d_ucy for res in res_list]
-        self.uy_mouth = [np.array([u[self.mouth_idx].values[0] for u in uy]) for uy in uy_list]
+        self.uy_mouth = [
+            np.array([u[self.mouth_idx].values[0] for u in uy])
+            for uy in uy_list
+        ]
 
-        self.amps_list, self.phases_list = analysis.decompose(self.dates, self.elvs_list)
+        self.amps_list, self.phases_list = analysis.decompose(
+            self.dates, self.elvs_list)
 
         self.labels = [inp['label'] for inp in self.inp_list]
 
@@ -234,10 +276,12 @@ class TidalConstituents():
             df['date'] = self.dates
             df['water level'] = self.elv_mouth[itr]
             df['velocity'] = self.uy_mouth[itr]
-            df.to_csv(Path('data', f'mouth_{label.replace(" ", "_")}.csv'), index=False)
+            df.to_csv(Path('data', f'mouth_{label.replace(" ", "_")}.csv'),
+                      index=False)
             itr += 1
 
-        df = pd.DataFrame(columns=['distance', 'M2 amp', 'M2 phase', 'M4 amp', 'M4 phase'])
+        df = pd.DataFrame(
+            columns=['distance', 'M2 amp', 'M2 phase', 'M4 amp', 'M4 phase'])
         itr = 0
         for label in self.labels:
             df['distance'] = self.ny_center
@@ -245,12 +289,13 @@ class TidalConstituents():
             df['M2 phase'] = self.phases_list[itr][0][self.idx_sort]
             df['M4 amp'] = self.amps_list[itr][1][self.idx_sort]
             df['M4 phase'] = self.phases_list[itr][1][self.idx_sort]
-            df.to_csv(Path('data', f'tide_{label.replace(" ", "_")}.csv'), index=False)
+            df.to_csv(Path('data', f'tide_{label.replace(" ", "_")}.csv'),
+                      index=False)
             itr += 1
 
     def plot_constituents(self):
         import matplotlib.colors as mcolors
-        
+
         print("Tidal constituents visualization ...")
         for tc, name in zip([0, 1], ['M2', 'M4']):
             output = Path('images', f'tide_{name}.png')
@@ -261,15 +306,23 @@ class TidalConstituents():
             ax = [fig.add_subplot(g) for g in gs]
 
             colors = list(mcolors.TABLEAU_COLORS.keys())[:len(self.wd_center)]
-            for a, p, l, c in zip(self.amps_list, self.phases_list, self.labels, colors):
-                ax[0].plot(self.ny_center, a[tc][self.idx_sort], label=f'{l}', c=c)
-                ax[1].plot(self.ny_center, p[tc][self.idx_sort], label=f'{l}', c=c)
+            for a, p, l, c in zip(self.amps_list, self.phases_list,
+                                  self.labels, colors):
+                ax[0].plot(self.ny_center,
+                           a[tc][self.idx_sort],
+                           label=f'{l}',
+                           c=c)
+                ax[1].plot(self.ny_center,
+                           p[tc][self.idx_sort],
+                           label=f'{l}',
+                           c=c)
 
-            fig.suptitle(f'The ${name}$ tidal constituent of water level along the center of the domain',
-                 y=0.99,
-                 horizontalalignment='center',
-                 verticalalignment='top',
-                 fontsize = 12)
+            fig.suptitle(
+                f'{self.title[0]} study; the ${name}$ tidal constituent of water level along the center of the domain',
+                y=0.99,
+                horizontalalignment='center',
+                verticalalignment='top',
+                fontsize=12)
 
             ax[1].set_xlim(self.ny_center.min(), self.ny_center.max())
 
@@ -283,7 +336,7 @@ class TidalConstituents():
     def plot_mouth(self):
         import matplotlib.colors as mcolors
         import matplotlib.dates as mdates
-        
+
         print("River's mouth visualization ...")
         output = Path('images', 'mouth.png')
 
@@ -294,18 +347,21 @@ class TidalConstituents():
         ax = [fig.add_subplot(g) for g in gs]
 
         colors = list(mcolors.TABLEAU_COLORS.keys())[:len(self.wd_center)]
-        for e, u, l, c in zip(self.elv_mouth, self.uy_mouth, self.labels, colors):
+        for e, u, l, c in zip(self.elv_mouth, self.uy_mouth, self.labels,
+                              colors):
             ax[0].plot(self.dates, e, label=f'{l}', c=c)
             ax[1].plot(self.dates, u, label=f'{l}', c=c)
-        
+
         fig.autofmt_xdate()
 
-        fig.suptitle('Velocity and water level at the mouth of the river',
-             y=0.99,
-             horizontalalignment='center',
-             verticalalignment='top',
-             fontsize = 12)
-        
+        fig.suptitle(
+            f'{self.title[0]} study; velocity and water level at the mouth ' +
+            'of the river',
+            y=0.99,
+            horizontalalignment='center',
+            verticalalignment='top',
+            fontsize=12)
+
         uy_max = np.max(np.absolute(self.uy_mouth)) * 1.1
         elv_max = np.max(np.absolute(self.elv_mouth)) * 1.1
         ax[0].set_ylim(-elv_max, elv_max)
