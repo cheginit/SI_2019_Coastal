@@ -38,8 +38,8 @@ def make_canvas(width, height, nx=1, ny=1):
                            right=0.95,
                            bottom=0.15,
                            top=0.95,
-                           wspace=None,
-                           hspace=None,
+                           wspace=0.0,
+                           hspace=0.0,
                            width_ratios=None,
                            height_ratios=None)
     return fig, gs, canvas
