@@ -7,7 +7,6 @@ from sys import argv
 import itertools
 import vis
 
-
 dirname = argv[1:]
 res_list, inp_list = [], []
 for d in dirname:
@@ -21,21 +20,26 @@ for d in dirname:
 
 plot_id = [inp['plot'] for inp in inp_list]
 
-wl_idx = [i for i, f in enumerate(plot_id) if f[0] == 'T']
-cs_idx = [i for i, f in enumerate(plot_id) if f[1] == 'T']
-tc_idx = [i for i, f in enumerate(plot_id) if f[2] == 'T']
+wl_idx, cs_idx, tc_idx = [], [], []
+for i, f in enumerate(plot_id):
+    wl_idx.append(1 if f[0] == 'T' else 0)
+    cs_idx.append(1 if f[1] == 'T' else 0)
+    tc_idx.append(1 if f[2] == 'T' else 0)
 
-res, inp = list(itertools.compress(res_list, wl_idx)), list(itertools.compress(inp_list, wl_idx))
+res, inp = list(itertools.compress(res_list, wl_idx)), list(
+    itertools.compress(inp_list, wl_idx))
 if len(res) > 0 and len(inp) > 0:
     water_level = vis.WaterSurface(res, inp)
     water_level.animate()
 
-res, inp = list(itertools.compress(res_list, cs_idx)), list(itertools.compress(inp_list, cs_idx))
+res, inp = list(itertools.compress(res_list, cs_idx)), list(
+    itertools.compress(inp_list, cs_idx))
 if len(res) > 0 and len(inp) > 0:
     cross_section = vis.CrossSection(res, inp)
     cross_section.animate()
 
-res, inp = list(itertools.compress(res_list, tc_idx)), list(itertools.compress(inp_list, tc_idx))
+res, inp = list(itertools.compress(res_list, tc_idx)), list(
+    itertools.compress(inp_list, tc_idx))
 if len(res) > 0 and len(inp) > 0:
     tidal_constituents = vis.TidalConstituents(res, inp)
     tidal_constituents.plot_constituents()

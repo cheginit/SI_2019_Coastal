@@ -11,6 +11,11 @@ class CrossSection():
     def __init__(self, res_list, inp_list):
         self.res_list = res_list
         self.inp_list = inp_list
+
+        self.output = self.inp_list[-1]['output']
+        if not Path(self.output).exists():
+            Path(self.output).mkdir()
+
         self.nx = self.res_list[0].mesh2d_face_x.values
         self.ny = self.res_list[0].mesh2d_face_y.values
         self.center = np.where((self.nx > self.inp_list[0]['x_center'] - 300)
@@ -36,7 +41,8 @@ class CrossSection():
     def animate(self):
         print("Cross section visualization ...")
         utils.animation(self.plot_func,
-                        range(0, self.res_list[0].time.shape[0], 1),
+                        range(0, self.res_list[0].time.shape[0],
+                              1), self.output,
                         'cs_' + self.inp_list[-1]['label'].replace(' ', ''))
 
     def plot_func(self, t):
@@ -54,9 +60,8 @@ class CrossSection():
             ax.plot(self.ny_center, w[t][0][self.idx_sort], label=f'{l}', c=c)
 
         ax.set_title(
-            f'{self.title[0]} study; cross-section across the middle of the '+
-            'domain (y-direction)'
-        )
+            f'{self.title[0]} study; cross-section across the middle of the ' +
+            'domain (y-direction)')
         ax.set_xlim(self.ny_center.min(), self.ny_center.max())
         ax.set_ylim(self.ymin, self.ymax)
         ax.set_xlabel('Distance (m)')
@@ -70,6 +75,11 @@ class WaterSurface():
     def __init__(self, res_list, inp_list):
         self.res_list = res_list
         self.inp_list = inp_list
+
+        self.output = self.inp_list[-1]['output']
+        if not Path(self.output).exists():
+            Path(self.output).mkdir()
+
         self.vmax = np.array([
             np.absolute(res.mesh2d_s1.values).max() * 1.1
             for res in self.res_list
@@ -151,13 +161,13 @@ class WaterSurface():
 
             self.label = 'wl_' + inp['label']
             utils.animation(self.plot_func, range(0, self.wd.time.shape[0], 1),
-                            self.label.replace(' ', ''))
+                            self.output, self.label.replace(' ', ''))
             if itr > 0:
                 self.wd = self.res_list[0].mesh2d_s1 - self.wd
                 self.label = 'RDiff ' + self.label
                 utils.animation(self.plot_func,
                                 range(0, self.wd.time.shape[0], 1),
-                                self.label.replace(' ', ''))
+                                self.output, self.label.replace(' ', ''))
             itr = +1
 
     def plot_func(self, t):
@@ -209,6 +219,10 @@ class TidalConstituents():
         self.title = [inp['title'] for inp in self.inp_list]
         if "Ref" in self.title: self.title.remove("Ref")
 
+        self.output = self.inp_list[-1]['output']
+        if not Path(self.output).exists():
+            Path(self.output).mkdir()
+
         self.dates = res_list[0].time.values.astype(int) * 1e-9
         self.dates = np.array(
             [datetime.utcfromtimestamp(t) for t in self.dates])
@@ -217,18 +231,22 @@ class TidalConstituents():
         self.ny = self.res_list[0].mesh2d_face_y.values
         self.center = np.where((self.nx > self.inp_list[0]['x_center'] - 300)
                                & (self.nx < self.inp_list[0]['x_center']))[0]
-        self.mouth_idx = np.where((self.ny > self.inp_list[0]['y_mouth'] - 500)
-                                  & (self.ny < self.inp_list[0]['y_mouth']))[0]
+        self.mouth_idx = np.where(
+            (self.ny > self.inp_list[0]['y_mouth'] - 100)
+            & (self.ny < self.inp_list[0]['y_mouth'] + 1100))[0]
+
         self.mouth_idx = np.intersect1d(self.center, self.mouth_idx)
 
-        if not Path('data').exists():
-            Path('data').mkdir()
+        if not Path(self.output).exists():
+            Path(self.output).mkdir()
 
         for i in range(len(inp_list)):
             if not inp_list[i]['class'] == 1:
-                bay_idx = np.where((self.ny > self.inp_list[0]['y_b'] - 500)
-                                   & (self.ny < self.inp_list[0]['y_b']))[0]
+                bay_idx = np.where(
+                    (self.ny > self.inp_list[0]['y_o'] - 100)
+                    & (self.ny < self.inp_list[0]['y_o'] + 1100))[0]
                 bay_idx = np.intersect1d(self.center, bay_idx)
+
                 uy_bay = np.array(
                     [u[bay_idx].values[0] for u in res_list[i].mesh2d_ucy])
                 el_bay = np.array(
@@ -239,7 +257,7 @@ class TidalConstituents():
                 df['water level'] = el_bay
                 df['velocity'] = uy_bay
                 df.to_csv(Path(
-                    'data',
+                    self.output,
                     f'bay_{inp_list[i]["label"].replace(" ", "_")}.csv'),
                           index=False)
 
@@ -276,7 +294,8 @@ class TidalConstituents():
             df['date'] = self.dates
             df['water level'] = self.elv_mouth[itr]
             df['velocity'] = self.uy_mouth[itr]
-            df.to_csv(Path('data', f'mouth_{label.replace(" ", "_")}.csv'),
+            df.to_csv(Path(self.output,
+                           f'mouth_{label.replace(" ", "_")}.csv'),
                       index=False)
             itr += 1
 
@@ -289,7 +308,7 @@ class TidalConstituents():
             df['M2 phase'] = self.phases_list[itr][0][self.idx_sort]
             df['M4 amp'] = self.amps_list[itr][1][self.idx_sort]
             df['M4 phase'] = self.phases_list[itr][1][self.idx_sort]
-            df.to_csv(Path('data', f'tide_{label.replace(" ", "_")}.csv'),
+            df.to_csv(Path(self.output, f'tide_{label.replace(" ", "_")}.csv'),
                       index=False)
             itr += 1
 
@@ -298,7 +317,7 @@ class TidalConstituents():
 
         print("Tidal constituents visualization ...")
         for tc, name in zip([0, 1], ['M2', 'M4']):
-            output = Path('images', f'tide_{name}.png')
+            output = Path(self.output, f'tide_{name}.png')
             if output.exists():
                 continue
 
@@ -318,7 +337,8 @@ class TidalConstituents():
                            c=c)
 
             fig.suptitle(
-                f'{self.title[0]} study; the ${name}$ tidal constituent of water level along the center of the domain',
+                f'{self.title[0]} study; the ${name}$ tidal constituent ' +
+                'of water level along the center of the domain',
                 y=0.99,
                 horizontalalignment='center',
                 verticalalignment='top',
@@ -338,7 +358,7 @@ class TidalConstituents():
         import matplotlib.dates as mdates
 
         print("River's mouth visualization ...")
-        output = Path('images', 'mouth.png')
+        output = Path(self.output, 'mouth.png')
 
         if output.exists():
             return

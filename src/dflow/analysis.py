@@ -68,10 +68,8 @@ def decompose(dates, elvs_list):
     import numpy as np
 
     pool = multiprocessing.Pool()
-    print(
-        f'Computing the tidal constituents in parallel with ' +
-        '{pool._processes} processors ...'
-    )
+    print('Computing the tidal constituents in parallel with ' +
+          f'{pool._processes} processors ...')
     decompose_el = partial(_decompose, dates)
     tide_list = pool.map(decompose_el, elvs_list)
     pool.close()

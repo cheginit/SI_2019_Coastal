@@ -47,7 +47,6 @@ def make_canvas(width, height, nx=1, ny=1):
 
 
 def latexify(fig_width=None, fig_height=None, columns=1):
-    import matplotlib.pyplot as plt
     import matplotlib
     from math import sqrt
     """Set up matplotlib's RC params for LaTeX plotting.
@@ -97,7 +96,13 @@ def latexify(fig_width=None, fig_height=None, columns=1):
     matplotlib.rcParams.update(params)
 
 
-def animation(func, frames, clip_name, video=True, gif=False, clean_up=True):
+def animation(func,
+              frames,
+              output,
+              fname,
+              video=True,
+              gif=False,
+              clean_up=True):
     import time as dt
     import subprocess
     import multiprocessing
@@ -106,8 +111,8 @@ def animation(func, frames, clip_name, video=True, gif=False, clean_up=True):
 
     if not Path('images').exists():
         Path('images').mkdir()
-    if not Path('videos').exists():
-        Path('videos').mkdir()
+    if not Path(output).exists():
+        Path(output).mkdir()
 
     starttime = dt.time()
     pool = multiprocessing.Pool()
@@ -122,12 +127,19 @@ def animation(func, frames, clip_name, video=True, gif=False, clean_up=True):
         print('Making a video from the plots ...')
 
         p = subprocess.Popen([
-            'ffmpeg', '-framerate', '12', '-i',
-            Path('images',
-                 'frame_%03d.png'), '-c:v', 'libx264', '-preset', 'slow',
-            '-profile:v', 'high', '-level:v', '4.0', '-pix_fmt', 'yuv420p',
-            '-crf', '22', '-hide_banner', '-loglevel', 'panic', '-y',
-            Path('videos', f'{clip_name}.mp4')
+            'ffmpeg',
+            '-framerate', '12',
+            '-i', Path('images', 'frame_%03d.png'),
+            '-c:v', 'libx264',
+            '-preset', 'slow',
+            '-profile:v', 'high',
+            '-level:v', '4.0',
+            '-pix_fmt', 'yuv420p',
+            '-crf', '22',
+            '-hide_banner',
+            '-loglevel', 'panic',
+            '-y',
+            Path(output, f'{fname}.mp4')
         ])
         p.communicate()
 
@@ -135,9 +147,12 @@ def animation(func, frames, clip_name, video=True, gif=False, clean_up=True):
         print('Making a gif from the plots ...')
 
         p = subprocess.Popen([
-            'convert', '-delay', '10', '-resize', '30%', '-quiet',
+            'convert',
+            '-delay', '10',
+            '-resize', '30%',
+            '-quiet',
             Path('images', '*.png'),
-            Path('videos', f'{clip_name}.gif')
+            Path(output, f'{fname}.gif')
         ])
         p.communicate()
 

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+./dflow_plotter.py ~/Documents/C1_A8_S1 ~/Documents/C1_A8_S5
+./dflow_plotter.py ~/Documents/C1_A8_S1 ~/Documents/C1_A8_S2 ~/Documents/C1_A8_S3
+./dflow_plotter.py ~/Documents/C1_A8_S1 ~/Documents/C1_A8_S7 ~/Documents/C1_A8_S8
+./dflow_plotter.py ~/Documents/C2_A8_S1 ~/Documents/C2_A8_S5
+./dflow_plotter.py ~/Documents/C2_A8_S1 ~/Documents/C2_A8_S2 ~/Documents/C2_A8_S3
+./dflow_plotter.py ~/Documents/C2_A8_S1 ~/Documents/C2_A8_S7 ~/Documents/C2_A8_S8
+./dflow_plotter.py ~/Documents/C3_A8_S1 ~/Documents/C3_A8_S5
+./dflow_plotter.py ~/Documents/C3_A8_S1 ~/Documents/C3_A8_S2 ~/Documents/C3_A8_S3
+./dflow_plotter.py ~/Documents/C3_A8_S1 ~/Documents/C3_A8_S7 ~/Documents/C3_A8_S8
